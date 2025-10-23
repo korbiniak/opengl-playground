@@ -1,0 +1,5 @@
+fs = import('fs')
+fs.copyfile('shader1.vs')
+fs.copyfile('shader1.fs')
+fs.copyfile('font.vs')
+fs.copyfile('font.fs')
