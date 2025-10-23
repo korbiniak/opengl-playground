@@ -4,38 +4,38 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
-
+#include <stb_image.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "glm/ext/matrix_transform.hpp"
-#include "shader.h"
-#include "stb_image.h"
+#include "src/shader.h"
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
   (void)window;
   glViewport(0, 0, width, height);
 }
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraPos = glm::vec3(0.0F, 0.0F, 3.0F);
+glm::vec3 cameraFront = glm::vec3(0.0F, 0.0F, -1.0F);
+glm::vec3 cameraUp = glm::vec3(0.0F, 1.0F, 0.0F);
 
-float deltaTime = 0.0f;
-float yaw = 0.0f, pitch = 0.0f;
+float deltaTime = 0.0F;
+float yaw = 0.0F, pitch = 0.0F;
 float lastX = 400, lastY = 300;
 
 void processInput(GLFWwindow* window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
-  const float cameraSpeed = 2.5f * deltaTime;
+  const float cameraSpeed = 2.5F * deltaTime;
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     cameraPos += cameraSpeed * cameraFront;
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -47,10 +47,10 @@ void processInput(GLFWwindow* window) {
     cameraPos +=
         glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    cameraPos += cameraSpeed * glm::vec3(0.0f, 1.0f, 0.0f);
+    cameraPos += cameraSpeed * glm::vec3(0.0F, 1.0F, 0.0F);
   }
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-    cameraPos += cameraSpeed * glm::vec3(0.0f, -1.0f, 0.0f);
+    cameraPos += cameraSpeed * glm::vec3(0.0F, -1.0F, 0.0F);
   }
 }
 
@@ -62,17 +62,17 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
   lastX = xpos;
   lastY = ypos;
 
-  float sensitivity = 0.1f;
+  float sensitivity = 0.1F;
   xoffset *= sensitivity;
   yoffset *= sensitivity;
 
   yaw += xoffset;
   pitch -= yoffset;
 
-  if (pitch > 89.0f)
-    pitch = 89.0f;
-  if (pitch < -89.0f)
-    pitch = -89.0f;
+  if (pitch > 89.0F)
+    pitch = 89.0F;
+  if (pitch < -89.0F)
+    pitch = -89.0F;
 
   glm::vec3 direction;
   direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -233,9 +233,9 @@ void renderText(Shader& s, unsigned int fontVAO, unsigned int fontVBO,
     float h = ch.size.y * scale;
 
     float vertices[6][4] = {
-        {xpos, ypos + h, 0.0f, 0.0f}, {xpos, ypos, 0.0f, 1.0f},
-        {xpos + w, ypos, 1.0f, 1.0f}, {xpos, ypos + h, 0.0f, 0.0f},
-        {xpos + w, ypos, 1.0f, 1.0f}, {xpos + w, ypos + h, 1.0f, 0.0f},
+        {xpos, ypos + h, 0.0F, 0.0F}, {xpos, ypos, 0.0F, 1.0F},
+        {xpos + w, ypos, 1.0F, 1.0F}, {xpos, ypos + h, 0.0F, 0.0F},
+        {xpos + w, ypos, 1.0F, 1.0F}, {xpos + w, ypos + h, 1.0F, 0.0F},
     };
 
     glBindTexture(GL_TEXTURE_2D, ch.textureId);
@@ -256,47 +256,47 @@ int main() {
 
   // clang-format off
   float vertices[] = {
-     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     -0.5F, -0.5F, -0.5F,  0.0F, 0.0F,
+      0.5F, -0.5F, -0.5F,  1.0F, 0.0F,
+      0.5F,  0.5F, -0.5F,  1.0F, 1.0F,
+      0.5F,  0.5F, -0.5F,  1.0F, 1.0F,
+     -0.5F,  0.5F, -0.5F,  0.0F, 1.0F,
+     -0.5F, -0.5F, -0.5F,  0.0F, 0.0F,
 
-     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     -0.5F, -0.5F,  0.5F,  0.0F, 0.0F,
+      0.5F, -0.5F,  0.5F,  1.0F, 0.0F,
+      0.5F,  0.5F,  0.5F,  1.0F, 1.0F,
+      0.5F,  0.5F,  0.5F,  1.0F, 1.0F,
+     -0.5F,  0.5F,  0.5F,  0.0F, 1.0F,
+     -0.5F, -0.5F,  0.5F,  0.0F, 0.0F,
 
-     -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     -0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
+     -0.5F,  0.5F, -0.5F,  1.0F, 1.0F,
+     -0.5F, -0.5F, -0.5F,  0.0F, 1.0F,
+     -0.5F, -0.5F, -0.5F,  0.0F, 1.0F,
+     -0.5F, -0.5F,  0.5F,  0.0F, 0.0F,
+     -0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
 
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+      0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
+      0.5F,  0.5F, -0.5F,  1.0F, 1.0F,
+      0.5F, -0.5F, -0.5F,  0.0F, 1.0F,
+      0.5F, -0.5F, -0.5F,  0.0F, 1.0F,
+      0.5F, -0.5F,  0.5F,  0.0F, 0.0F,
+      0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
 
-     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     -0.5F, -0.5F, -0.5F,  0.0F, 1.0F,
+      0.5F, -0.5F, -0.5F,  1.0F, 1.0F,
+      0.5F, -0.5F,  0.5F,  1.0F, 0.0F,
+      0.5F, -0.5F,  0.5F,  1.0F, 0.0F,
+     -0.5F, -0.5F,  0.5F,  0.0F, 0.0F,
+     -0.5F, -0.5F, -0.5F,  0.0F, 1.0F,
 
-     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+     -0.5F,  0.5F, -0.5F,  0.0F, 1.0F,
+      0.5F,  0.5F, -0.5F,  1.0F, 1.0F,
+      0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
+      0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
+     -0.5F,  0.5F,  0.5F,  0.0F, 0.0F,
+     -0.5F,  0.5F, -0.5F,  0.0F, 1.0F
   };
   // clang-format on
 
@@ -336,13 +336,15 @@ int main() {
   shader.setInt("texture2", 1);
 
   glm::mat4 projection =
-      glm::perspective(glm::radians(45.0f), 800.0f / 600.f, 0.1f, 100.0f);
+      glm::perspective(glm::radians(45.0F), 800.0F / 600.0F, 0.1F, 100.0F);
   shader.setMat4("projection", projection);
 
   Shader fontShader("shaders/font.vs", "shaders/font.fs");
   fontShader.use();
-  fontShader.setMat4("projection", glm::ortho(0.0f, 800.0f, 0.0f, 600.0f));
-  unsigned int fontVAO, fontVBO;
+  fontShader.setMat4("projection", glm::ortho(0.0F, 800.0F, 0.0F, 600.0F));
+
+  unsigned int fontVAO;
+  unsigned int fontVBO;
   glGenVertexArrays(1, &fontVAO);
   glGenBuffers(1, &fontVBO);
   glBindVertexArray(fontVAO);
@@ -351,19 +353,19 @@ int main() {
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
 
-  glm::vec3 cubePositions[] = {
-      glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
-      glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
-      glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
-      glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
-      glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
+  std::vector<glm::vec3> cubePositions = {
+      glm::vec3(0.0F, 0.0F, 0.0F),    glm::vec3(2.0F, 5.0F, -15.0F),
+      glm::vec3(-1.5F, -2.2F, -2.5F), glm::vec3(-3.8F, -2.0F, -12.3F),
+      glm::vec3(2.4F, -0.4F, -3.5F),  glm::vec3(-1.7F, 3.0F, -7.5F),
+      glm::vec3(1.3F, -2.0F, -2.5F),  glm::vec3(1.5F, 2.0F, -2.5F),
+      glm::vec3(1.5F, 0.2F, -1.5F),   glm::vec3(-1.3F, 1.0F, -1.5F),
   };
 
-  float lastFrame = 0.0f;
+  float lastFrame = 0.0F;
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
 
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.2F, 0.3F, 0.3F, 1.0F);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader.use();
@@ -380,10 +382,10 @@ int main() {
     shader.setMat4("view", view);
 
     for (unsigned int i = 0; i < 10; i++) {
-      glm::mat4 model = glm::translate(glm::mat4(1.0f), cubePositions[i]);
-      float angle = 20.0f * i;
+      glm::mat4 model = glm::translate(glm::mat4(1.0F), cubePositions[i]);
+      float angle = 20.0F * i;
       model =
-          glm::rotate(model, glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+          glm::rotate(model, glm::radians(angle), glm::vec3(0.5F, 1.0F, 0.0F));
       shader.setMat4("model", model);
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -393,7 +395,7 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     std::string fps = std::to_string((int)(1 / deltaTime));
-    renderText(fontShader, fontVAO, fontVBO, "Fps: " + fps, 25.0f, 575.0f, 0.1f,
+    renderText(fontShader, fontVAO, fontVBO, "Fps: " + fps, 25.0F, 575.0F, 0.1F,
                glm::vec3(1.0, 1.0, 1.0));
 
     glfwSwapBuffers(window);

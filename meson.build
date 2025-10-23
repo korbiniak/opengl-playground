@@ -17,16 +17,28 @@ subdir('shaders')
 subdir('assets')
 subdir('fonts')
 
+stb_image_lib = static_library(
+  'stb_image',
+  'lib/stb_image/stb_image.cpp',
+  include_directories: include_directories('lib/stb_image')
+)
+
+stb_image_dep = declare_dependency(
+  link_with: stb_image_lib,
+  include_directories: include_directories('lib/stb_image')
+)
+
 src_files = files(
   'src/main.cpp',
   'src/shader.cpp',
   'src/stb_image.cpp',
+  'src/camera.cpp',
 )
 
 inc_dirs = include_directories('src')
 
 executable('main',
            src_files,
-  dependencies: [gl_dep, glew_dep, glfw_dep, glm_dep, freetype2_dep],
+  dependencies: [gl_dep, glew_dep, glfw_dep, glm_dep, freetype2_dep, stb_image_dep],
   install: false)
 

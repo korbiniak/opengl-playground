@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "src/shader.h"
 
 #include <cstdlib>
 #include <cstring>
