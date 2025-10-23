@@ -17,7 +17,16 @@ subdir('shaders')
 subdir('assets')
 subdir('fonts')
 
+src_files = files(
+  'src/main.cpp',
+  'src/shader.cpp',
+  'src/stb_image.cpp',
+)
+
+inc_dirs = include_directories('src')
+
 executable('main',
-           ['main.cpp', 'shader.cpp', 'stb_image.cpp'],
+           src_files,
   dependencies: [gl_dep, glew_dep, glfw_dep, glm_dep, freetype2_dep],
   install: false)
+
