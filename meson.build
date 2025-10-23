@@ -29,16 +29,23 @@ stb_image_dep = declare_dependency(
 )
 
 src_files = files(
-  'src/main.cpp',
+  'src/main2.cpp',
   'src/shader.cpp',
-  'src/stb_image.cpp',
   'src/camera.cpp',
+  'src/mesh.cpp',
+  'src/application.cpp',
+  'src/resource_manager.cpp',
+  'src/texture.cpp',
+  'src/logger.cpp',
+  'src/game_object.cpp',
+  'src/model.cpp',
+  'src/utils.cpp'
 )
 
 inc_dirs = include_directories('src')
 
 executable('main',
            src_files,
-  dependencies: [gl_dep, glew_dep, glfw_dep, glm_dep, freetype2_dep, stb_image_dep],
+           dependencies: [gl_dep, glew_dep, glfw_dep, glm_dep, freetype2_dep, stb_image_dep],
   install: false)
 

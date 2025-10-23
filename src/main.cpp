@@ -174,6 +174,7 @@ GLFWwindow* init() {
 
   glViewport(0, 0, 800, 600);
   glEnable(GL_DEPTH_TEST);
+
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window, mouseCallback);
   glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -217,7 +218,7 @@ void renderText(Shader& s, unsigned int fontVAO, unsigned int fontVBO,
                 glm::vec3 color) {
   glDepthMask(GL_FALSE);  // Don't write into the depth buffer
   s.use();
-  s.setVec3("textColor", color);
+  s.setUniform("textColor", color);
   glActiveTexture(GL_TEXTURE0);
   glBindVertexArray(fontVAO);
 
@@ -332,16 +333,16 @@ int main() {
 
   Shader shader("shaders/shader1.vs", "shaders/shader1.fs");
   shader.use();
-  shader.setInt("texture1", 0);
-  shader.setInt("texture2", 1);
+  shader.setUniform("texture1", 0);
+  shader.setUniform("texture2", 1);
 
   glm::mat4 projection =
       glm::perspective(glm::radians(45.0F), 800.0F / 600.0F, 0.1F, 100.0F);
-  shader.setMat4("projection", projection);
+  shader.setUniform("projection", projection);
 
   Shader fontShader("shaders/font.vs", "shaders/font.fs");
   fontShader.use();
-  fontShader.setMat4("projection", glm::ortho(0.0F, 800.0F, 0.0F, 600.0F));
+  fontShader.setUniform("projection", glm::ortho(0.0F, 800.0F, 0.0F, 600.0F));
 
   unsigned int fontVAO;
   unsigned int fontVBO;
@@ -379,14 +380,14 @@ int main() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-    shader.setMat4("view", view);
+    shader.setUniform("view", view);
 
     for (unsigned int i = 0; i < 10; i++) {
       glm::mat4 model = glm::translate(glm::mat4(1.0F), cubePositions[i]);
       float angle = 20.0F * i;
       model =
           glm::rotate(model, glm::radians(angle), glm::vec3(0.5F, 1.0F, 0.0F));
-      shader.setMat4("model", model);
+      shader.setUniform("model", model);
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }

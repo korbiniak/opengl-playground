@@ -11,12 +11,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "src/exceptions.h"
+#include "src/logger.h"
+#include "src/utils.h"
+
 std::string readSourceFile(const std::filesystem::path& path) {
   std::string code;
   std::ifstream sourceFile;
 
-  std::cout << "INFO::SHADER::COMPILATION: trying to open shader under " << path
-            << std::endl;
+  LOG_INFO("Opening shader", path);
 
   sourceFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
   try {
@@ -26,15 +29,14 @@ std::string readSourceFile(const std::filesystem::path& path) {
     sourceFile.close();
     code = shaderStream.str();
   } catch (std::ifstream::failure e) {
-    std::cout << "ERROR::SHADER::FILE_READ_ERROR: " << strerror(errno)
-              << std::endl;
-    exit(EXIT_FAILURE);
+    LOG_ERROR("Cannot open shader under ", path, ": ", strerror(errno));
+    throw;
   }
 
   return code;
 }
 
-unsigned int createShader(const std::string& source, GLuint shaderType) {
+GLuint compileShader(const std::string& source, GLuint shaderType) {
   int success;
   char infoLog[512];
   std::string shaderTypeString =
@@ -49,16 +51,14 @@ unsigned int createShader(const std::string& source, GLuint shaderType) {
 
   if (!success) {
     glGetShaderInfoLog(shader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::" << shaderTypeString
-              << "::COMPILATION_FAILED: " << infoLog << std::endl;
-    exit(EXIT_FAILURE);
+    LOG_ERROR("Shader compilation failed: ", infoLog);
+    throw ShaderCompilationException(infoLog);
   }
 
   return shader;
 }
 
-unsigned int createProgram(unsigned int vertexShader,
-                           unsigned int fragmentShader) {
+GLuint linkProgram(unsigned int vertexShader, unsigned int fragmentShader) {
   int success;
   char infoLog[512];
 
@@ -71,9 +71,8 @@ unsigned int createProgram(unsigned int vertexShader,
   glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
   if (!success) {
     glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED: " << infoLog
-              << std::endl;
-    exit(EXIT_FAILURE);
+    LOG_ERROR("Shader linking failed: ", infoLog);
+    throw ShaderCompilationException(infoLog);
   }
 
   return shaderProgram;
@@ -82,28 +81,53 @@ unsigned int createProgram(unsigned int vertexShader,
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
   std::string vShaderCode = readSourceFile(vertexPath);
   std::string fShaderCode = readSourceFile(fragmentPath);
-  unsigned int vertexShader = createShader(vShaderCode, GL_VERTEX_SHADER);
-  unsigned int fragmentShader = createShader(fShaderCode, GL_FRAGMENT_SHADER);
-  unsigned int shaderProgram = createProgram(vertexShader, fragmentShader);
+  GLuint vertexShader = compileShader(vShaderCode, GL_VERTEX_SHADER);
+  GLuint fragmentShader = compileShader(fShaderCode, GL_FRAGMENT_SHADER);
+  GLuint shaderProgram = linkProgram(vertexShader, fragmentShader);
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
 
   id = shaderProgram;
 }
 
+Shader::~Shader() {
+  glDeleteProgram(id);
+}
+
 void Shader::use() {
   glUseProgram(id);
+
+  checkGLError("after shader.use()");
 }
 
-void Shader::setInt(const std::string& name, int val) {
+void Shader::setUniform(const std::string& name, int val) {
+  GLint currentProgram;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
+  if (currentProgram != id) {
+    LOG_ERROR("Shader ", id, " not active when setting '", name, "'");
+    return;
+  }
+  if (glGetUniformLocation(id, name.c_str()) == -1) {
+    LOG_WARNING("Can't find uniform " + name);
+  }
+
   glUniform1i(glGetUniformLocation(id, name.c_str()), val);
+  checkGLError("after setUniform(int) for name " + name);
 }
 
-void Shader::setMat4(const std::string& name, const glm::mat4& mat4) {
+void Shader::setUniform(const std::string& name, const glm::mat4& mat4) {
+  if (glGetUniformLocation(id, name.c_str()) == -1) {
+    LOG_WARNING("Can't find uniform " + name);
+  }
   glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE,
                      glm::value_ptr(mat4));
+  checkGLError("after setUniform(mat4) for name " + name);
 }
 
-void Shader::setVec3(const std::string& name, const glm::vec3& vec3) {
+void Shader::setUniform(const std::string& name, const glm::vec3& vec3) {
+  if (glGetUniformLocation(id, name.c_str()) == -1) {
+    LOG_WARNING("Can't find uniform " + name);
+  }
   glUniform3f(glGetUniformLocation(id, name.c_str()), vec3.x, vec3.y, vec3.z);
+  checkGLError("after setUniform(vec3) for name " + name);
 }
