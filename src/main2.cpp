@@ -29,7 +29,9 @@ int main(int argc, char* argv[]) {
   options.add_options()("l,log-level",
                         "Log level, possible values: " + join(logLevels),
                         cxxopts::value<LogLevel>()->default_value("INFO"))(
-      "h,help", "Print usage");
+      "h,help", "Print usage")("width", "Window width",
+                               cxxopts::value<int>()->default_value("800"))(
+      "height", "Window height", cxxopts::value<int>()->default_value("600"));
 
   cxxopts::ParseResult result = options.parse(argc, argv);
 
@@ -37,9 +39,11 @@ int main(int argc, char* argv[]) {
     std::cout << options.help() << std::endl;
     return 0;
   }
+  int width = result["width"].as<int>();
+  int height = result["height"].as<int>();
+  Log.setLevel(result["log-level"].as<LogLevel>());
 
-  Application app;
-  Log.setLevel(LogLevel::DEBUG);
+  Application app(width, height);
 
   app.init();
   app.run();

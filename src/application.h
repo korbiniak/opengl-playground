@@ -31,21 +31,30 @@ class Application {
   static void framebufferSizeCallbackStatic(GLFWwindow* window, int xpos,
                                             int ypos);
 
+  static void windowPosCallbackStatic(GLFWwindow* window, int xpos, int ypos);
+
   void keyCallback(int key, int scancode, int action, int mods);
 
   void mouseCallback(double xpos, double ypos);
 
   void framebufferSizeCallback(int xpos, int ypos);
 
+  void windowPosCallback(int xpos, int ypos);
+
   void processInput();
 
+  float getAspectRatio();
+
   void initGLFW();
+
   void initGL();
 
-  /* TODO: Maybe this should be abstract? */
   void loadResources();
+
   void setupScene();
+
   void update();
+
   void render();
 
  public:

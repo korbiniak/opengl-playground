@@ -33,15 +33,25 @@ void Application::framebufferSizeCallbackStatic(GLFWwindow* window, int xpos,
   app->framebufferSizeCallback(xpos, ypos);
 }
 
+void Application::windowPosCallbackStatic(GLFWwindow* window, int xpos,
+                                          int ypos) {
+  Application* app =
+      static_cast<Application*>(glfwGetWindowUserPointer(window));
+  app->windowPosCallback(xpos, ypos);
+}
+
 void Application::keyCallback(int key, int scancode, int action, int mods) {
   (void)scancode;
   (void)mods;
   if (key >= 0 && key < 1024) {
+    LOG_DEBUG("Key pressed: ", (char)key);
     keys[key] = action;
   }
 }
 
 void Application::mouseCallback(double xpos, double ypos) {
+  LOG_DEBUG("Mouse changed position: ", xpos, ", ", ypos);
+
   if (firstMouse) {
     lastX = xpos;
     lastY = ypos;
@@ -58,8 +68,19 @@ void Application::mouseCallback(double xpos, double ypos) {
 }
 
 void Application::framebufferSizeCallback(int xpos, int ypos) {
+  LOG_DEBUG("Changing window size ", xpos, ", ", ypos);
   glViewport(0, 0, xpos, ypos);
-  /* TODO: go over cameras and change aspect ratio */
+  width = xpos;
+  height = ypos;
+  firstMouse = true;
+  for (Camera& camera : scene.getAllCameras()) {
+    camera.setAspectRatio(getAspectRatio());
+  }
+}
+
+void Application::windowPosCallback(int xpos, int ypos) {
+  LOG_DEBUG("Window position changed: ", xpos, ", ", ypos);
+  firstMouse = true;
 }
 
 void Application::processInput() {
@@ -76,10 +97,10 @@ void Application::processInput() {
   if (keys[GLFW_KEY_S]) {
     camera.moveBackward(deltaTime);
   }
-  if (keys[GLFW_KEY_L]) {
+  if (keys[GLFW_KEY_A]) {
     camera.moveLeft(deltaTime);
   }
-  if (keys[GLFW_KEY_R]) {
+  if (keys[GLFW_KEY_D]) {
     camera.moveRight(deltaTime);
   }
   if (keys[GLFW_KEY_SPACE]) {
@@ -99,7 +120,7 @@ void Application::initGLFW() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  window = glfwCreateWindow(800, 600, "Main", NULL, NULL);
+  window = glfwCreateWindow(width, height, "Main", NULL, NULL);
 
   if (window == nullptr) {
     LOG_ERROR("Window creation failed");
@@ -110,8 +131,11 @@ void Application::initGLFW() {
   glfwMakeContextCurrent(window);
   glfwSetWindowUserPointer(window, this);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
   glfwSetCursorPosCallback(window, mouseCallbackStatic);
   glfwSetFramebufferSizeCallback(window, framebufferSizeCallbackStatic);
+  glfwSetKeyCallback(window, keyCallbackStatic);
+  glfwSetWindowPosCallback(window, windowPosCallbackStatic);
 }
 
 void Application::initGL() {
@@ -180,6 +204,10 @@ void Application::loadResources() {
   resourceManager.loadMesh("cube", vertices, indices);
 }
 
+float Application::getAspectRatio() {
+  return (float)width / height;
+}
+
 void Application::setupScene() {
   std::vector<glm::vec3> cubePositions = {
       glm::vec3(0.0F, 0.0F, 0.0F),    glm::vec3(2.0F, 5.0F, -15.0F),
@@ -189,7 +217,7 @@ void Application::setupScene() {
       glm::vec3(1.5F, 0.2F, -1.5F),   glm::vec3(-1.3F, 1.0F, -1.5F),
   };
 
-  scene.addCamera(Camera(glm::vec3(0.0f, 0.0f, 3.0f)));
+  scene.addCamera(Camera(glm::vec3(0.0f, 0.0f, 3.0f), getAspectRatio()));
 
   for (glm::vec3 position : cubePositions) {
     std::unique_ptr<Model> cube = std::make_unique<Model>(

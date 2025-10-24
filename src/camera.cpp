@@ -2,8 +2,8 @@
 
 #include "src/logger.h"
 
-Camera::Camera(glm::vec3 position, glm::vec3 front, glm::vec3 up, float speed,
-               float aspectRatio, float yaw, float pitch, float fov)
+Camera::Camera(glm::vec3 position, float aspectRatio, glm::vec3 front,
+               glm::vec3 up, float speed, float yaw, float pitch, float fov)
     : position(position),
       front(front),
       up(up),
@@ -13,7 +13,6 @@ Camera::Camera(glm::vec3 position, glm::vec3 front, glm::vec3 up, float speed,
       pitch(pitch),
       aspectRatio(aspectRatio),
       fov(fov) {
-  // updateVectors();
   updateMatrices();
 }
 

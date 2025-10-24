@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "src/logger.h"
+
 /* Camera class. No roll, only yaw and pitch. */
 class Camera {
  private:
@@ -24,10 +26,10 @@ class Camera {
   void updateVectors();
 
  public:
-  Camera(glm::vec3 position, glm::vec3 front = glm::vec3(0.0F, 0.0F, -1.0F),
+  Camera(glm::vec3 position, float aspectRatio = 800.0F / 600.0F,
+         glm::vec3 front = glm::vec3(0.0F, 0.0F, -1.0F),
          glm::vec3 up = glm::vec3(0.0F, 1.0F, 0.0F), float speed = 2.5F,
-         float aspectRatio = 800.0F / 600.0F, float yaw = -90.0F,
-         float pitch = 0.0F, float fov = 45.0F);
+         float yaw = -90.0F, float pitch = 0.0F, float fov = 45.0F);
 
   void updateMatrices();
 
@@ -44,7 +46,8 @@ class Camera {
   const glm::mat4& getProjectionMatrix() { return projection; }
   const glm::vec3& getPosition() { return position; }
 
-  void setAspectRatio(int newAspectRatio) {
+  void setAspectRatio(float newAspectRatio) {
+    LOG_DEBUG("Switching aspect ratio: ", newAspectRatio);
     aspectRatio = newAspectRatio;
     updateMatrices();
   }

@@ -43,6 +43,8 @@ class Scene {
   }
 
   void addCamera(Camera cam) { cameras.push_back(cam); }
+
+  std::vector<Camera>& getAllCameras() { return cameras; }
 };
 
 #endif /* SCENE_H */
