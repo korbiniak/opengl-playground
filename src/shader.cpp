@@ -28,7 +28,7 @@ std::string readSourceFile(const std::filesystem::path& path) {
     shaderStream << sourceFile.rdbuf();
     sourceFile.close();
     code = shaderStream.str();
-  } catch (std::ifstream::failure e) {
+  } catch (std::ifstream::failure& e) {
     LOG_ERROR("Cannot open shader under ", path, ": ", strerror(errno));
     throw;
   }
@@ -126,7 +126,7 @@ void Shader::setUniform(const std::string& name, const glm::mat4& mat4) {
 
 void Shader::setUniform(const std::string& name, const glm::vec3& vec3) {
   if (glGetUniformLocation(id, name.c_str()) == -1) {
-    LOG_WARNING("Can't find uniform " + name);
+    LOG_WARNING("Can't find uniform ", name);
   }
   glUniform3f(glGetUniformLocation(id, name.c_str()), vec3.x, vec3.y, vec3.z);
   checkGLError("after setUniform(vec3) for name " + name);

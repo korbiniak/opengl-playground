@@ -43,6 +43,11 @@ class Camera {
   const glm::mat4& getViewMatrix() { return view; }
   const glm::mat4& getProjectionMatrix() { return projection; }
   const glm::vec3& getPosition() { return position; }
+
+  void setAspectRatio(int newAspectRatio) {
+    aspectRatio = newAspectRatio;
+    updateMatrices();
+  }
 };
 
 #endif /* CAMERA_H */

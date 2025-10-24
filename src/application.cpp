@@ -34,6 +34,8 @@ void Application::framebufferSizeCallbackStatic(GLFWwindow* window, int xpos,
 }
 
 void Application::keyCallback(int key, int scancode, int action, int mods) {
+  (void)scancode;
+  (void)mods;
   if (key >= 0 && key < 1024) {
     keys[key] = action;
   }
@@ -61,31 +63,29 @@ void Application::framebufferSizeCallback(int xpos, int ypos) {
 }
 
 void Application::processInput() {
-  /* TODO: use keys[] instead */
   LOG_DEBUG("Processing input");
 
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-    LOG_DEBUG("Escape pressed");
+  if (keys[GLFW_KEY_ESCAPE]) {
     glfwSetWindowShouldClose(window, true);
   }
 
   Camera& camera = scene.getActiveCamera();
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+  if (keys[GLFW_KEY_W]) {
     camera.moveForward(deltaTime);
   }
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+  if (keys[GLFW_KEY_S]) {
     camera.moveBackward(deltaTime);
   }
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+  if (keys[GLFW_KEY_L]) {
     camera.moveLeft(deltaTime);
   }
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+  if (keys[GLFW_KEY_R]) {
     camera.moveRight(deltaTime);
   }
-  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+  if (keys[GLFW_KEY_SPACE]) {
     camera.moveUp(deltaTime);
   }
-  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+  if (keys[GLFW_KEY_LEFT_SHIFT]) {
     camera.moveDown(deltaTime);
   }
 }

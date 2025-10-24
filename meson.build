@@ -1,6 +1,9 @@
-project('opengl_test', 'cpp',
-  version: '0.1.0',
-  default_options: ['cpp_std=gnu++17', 'warning_level=3'])
+project(
+    'opengl_test',
+    'cpp',
+    version: '0.1.0',
+    default_options: ['cpp_std=c++20', 'warning_level=3'],
+)
 
 add_project_arguments('-O3', '-march=native', language: 'cpp')
 
@@ -12,40 +15,53 @@ glew_dep = dependency('glew')
 glfw_dep = dependency('glfw3')
 glm_dep = glm_proj.get_variable('glm_dep')
 freetype2_dep = dependency('freetype2')
+cxxopts_dep = dependency('cxxopts')
+magic_enum_dep = dependency('magic_enum')
 
 subdir('shaders')
 subdir('assets')
 subdir('fonts')
 
 stb_image_lib = static_library(
-  'stb_image',
-  'lib/stb_image/stb_image.cpp',
-  include_directories: include_directories('lib/stb_image')
+    'stb_image',
+    'lib/stb_image/stb_image.cpp',
+    include_directories: include_directories('lib/stb_image'),
 )
 
 stb_image_dep = declare_dependency(
-  link_with: stb_image_lib,
-  include_directories: include_directories('lib/stb_image')
+    link_with: stb_image_lib,
+    include_directories: include_directories('lib/stb_image'),
 )
 
 src_files = files(
-  'src/main2.cpp',
-  'src/shader.cpp',
-  'src/camera.cpp',
-  'src/mesh.cpp',
-  'src/application.cpp',
-  'src/resource_manager.cpp',
-  'src/texture.cpp',
-  'src/logger.cpp',
-  'src/game_object.cpp',
-  'src/model.cpp',
-  'src/utils.cpp'
+    'src/application.cpp',
+    'src/camera.cpp',
+    'src/game_object.cpp',
+    'src/logger.cpp',
+    'src/main2.cpp',
+    'src/mesh.cpp',
+    'src/model.cpp',
+    'src/resource_manager.cpp',
+    'src/shader.cpp',
+    'src/texture.cpp',
+    'src/utils.cpp',
 )
 
 inc_dirs = include_directories('src')
 
-executable('main',
-           src_files,
-           dependencies: [gl_dep, glew_dep, glfw_dep, glm_dep, freetype2_dep, stb_image_dep],
-  install: false)
+executable(
+    'main',
+    src_files,
+    dependencies: [
+        cxxopts_dep,
+        gl_dep,
+        glew_dep,
+        glfw_dep,
+        glm_dep,
+        freetype2_dep,
+        magic_enum_dep,
+        stb_image_dep,
+    ],
+    install: false,
+)
 
