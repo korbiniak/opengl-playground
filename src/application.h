@@ -6,6 +6,7 @@
 
 #include "src/resource_manager.h"
 #include "src/scene.h"
+#include "src/ui.h"
 
 class Application {
  private:
@@ -19,8 +20,10 @@ class Application {
   float mouseSensitivity;
 
   bool keys[1024] = {false};
+  bool wireframe;
 
   Scene scene;
+  UI ui;
   ResourceManager resourceManager;
 
   static void keyCallbackStatic(GLFWwindow* window, int key, int scancode,
@@ -52,6 +55,8 @@ class Application {
   void loadResources();
 
   void setupScene();
+
+  void setupUI();
 
   void update();
 

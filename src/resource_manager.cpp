@@ -3,98 +3,83 @@
 #include "src/exceptions.h"
 #include "src/logger.h"
 
-std::shared_ptr<Shader> ResourceManager::loadShader(
-    const std::string& name, const std::filesystem::path& vertexPath,
-    const std::filesystem::path& fragmentPath) {
-  LOG_INFO("Loading shader: ", name);
+template <typename T, typename... Args>
+std::shared_ptr<T> ResourceManager::loadResource(
+    const std::string& resourceType,
+    std::unordered_map<std::string, std::shared_ptr<T>>& container,
+    const std::string& name, Args&&... args) {
 
-  if (shaders.count(name)) {
-    std::string message = "shader '" + name + "' already exists";
+  LOG_INFO("Loading ", resourceType, ": ", name);
+
+  if (container.count(name)) {
+    std::string message = resourceType + " '" + name + "' already exists";
     LOG_ERROR(message);
-    throw ResourceException("Failed to load shader '" + name + "': " + message);
+    throw ResourceException("Failed to load " + resourceType + " '" + name +
+                            "': " + message);
   }
 
   try {
-    std::shared_ptr<Shader> shader =
-        std::make_shared<Shader>(vertexPath, fragmentPath);
-    shaders[name] = shader;
-    LOG_INFO("Shader '" + name + "' successfuly loaded");
-    return shader;
+    std::shared_ptr<T> resource =
+        std::make_shared<T>(std::forward<Args>(args)...);
+    container[name] = resource;
+    LOG_INFO(resourceType, " '", name, "' successfully loaded");
+    return resource;
   } catch (const std::exception& e) {
-    LOG_ERROR("Failed to load shader '" + name + "': ", e.what());
+    LOG_ERROR("Failed to load ", resourceType, " '", name, "': ", e.what());
     throw;
   }
+}
+
+template <typename T>
+std::shared_ptr<T> ResourceManager::getResource(
+    const std::string& resourceType,
+    const std::unordered_map<std::string, std::shared_ptr<T>>& container,
+    const std::string& name) {
+
+  if (!container.count(name)) {
+    LOG_WARNING(resourceType, " '", name, "' does not exist");
+    return nullptr;
+  }
+  return container.at(name);
+}
+
+std::shared_ptr<Shader> ResourceManager::loadShader(
+    const std::string& name, const std::filesystem::path& vertexPath,
+    const std::filesystem::path& fragmentPath) {
+  return loadResource<Shader>("shader", shaders, name, vertexPath,
+                              fragmentPath);
 }
 
 std::shared_ptr<Mesh> ResourceManager::loadMesh(
     const std::string& name, const std::vector<Vertex>& vertices,
     const std::vector<unsigned int>& indices) {
-
-  LOG_INFO("Loading mesh: ", name);
-
-  if (meshes.count(name)) {
-    std::string message = "mesh '" + name + "' already exists";
-    LOG_ERROR(message);
-    throw ResourceException("Failed to load mesh '" + name + "': " + message);
-  }
-
-  try {
-    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(vertices, indices);
-    meshes[name] = mesh;
-    LOG_INFO("Mesh '" + name + "' successfuly loaded");
-    return mesh;
-  } catch (const std::exception& e) {
-    LOG_ERROR("Failed to load mesh '" + name + "': ", e.what());
-    throw;
-  }
+  return loadResource<Mesh>("mesh", meshes, name, vertices, indices);
 }
 
-std::shared_ptr<Texture> ResourceManager::loadTexture(
+std::shared_ptr<Texture2D> ResourceManager::loadTexture(
     const std::string& name, const std::filesystem::path& path) {
+  return loadResource<Texture2D>("texture", textures, name, path);
+}
 
-  LOG_INFO("Loading texture: ", name);
-
-  if (textures.count(name)) {
-    std::string message = "texture '" + name + "' already exists";
-    LOG_ERROR(message);
-    throw ResourceException("Failed to load texture '" + name +
-                            "': " + message);
-  }
-
-  try {
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(path);
-    textures[name] = texture;
-    LOG_INFO("Texture '" + name + "' successfuly loaded");
-    return texture;
-  } catch (const std::exception& e) {
-    LOG_ERROR("Failed to load texture '" + name + "': ", e.what());
-    throw;
-  }
+std::shared_ptr<FontAtlas> ResourceManager::loadFont(
+    const std::string& name, const std::filesystem::path& path,
+    float fontSize) {
+  return loadResource<FontAtlas>("font", fonts, name, path, fontSize);
 }
 
 std::shared_ptr<Shader> ResourceManager::getShader(const std::string& name) {
-  if (!shaders.count(name)) {
-    LOG_WARNING("Shader '", name, "' does not exist");
-    return nullptr;
-  }
-
-  return shaders[name];
+  return getResource<Shader>("Shader", shaders, name);
 }
 
 std::shared_ptr<Mesh> ResourceManager::getMesh(const std::string& name) {
-  if (!meshes.count(name)) {
-    LOG_WARNING("Mesh '", name, "' does not exist");
-    return nullptr;
-  }
-
-  return meshes[name];
+  return getResource<Mesh>("Mesh", meshes, name);
 }
 
-std::shared_ptr<Texture> ResourceManager::getTexture(const std::string& name) {
-  if (!textures.count(name)) {
-    LOG_WARNING("Texture '", name, "' does not exist");
-    return nullptr;
-  }
+std::shared_ptr<Texture2D> ResourceManager::getTexture(
+    const std::string& name) {
+  return getResource<Texture2D>("Texture", textures, name);
+}
 
-  return textures[name];
+std::shared_ptr<FontAtlas> ResourceManager::getFont(const std::string& name) {
+  return getResource<FontAtlas>("Font", fonts, name);
 }

@@ -17,6 +17,7 @@ glm_dep = glm_proj.get_variable('glm_dep')
 freetype2_dep = dependency('freetype2')
 cxxopts_dep = dependency('cxxopts')
 magic_enum_dep = dependency('magic_enum')
+cereal_dep = dependency('cereal')
 
 subdir('shaders')
 subdir('assets')
@@ -25,6 +26,7 @@ subdir('fonts')
 stb_image_lib = static_library(
     'stb_image',
     'lib/stb_image/stb_image.cpp',
+    'lib/stb_image/stb_image_write.cpp',
     include_directories: include_directories('lib/stb_image'),
 )
 
@@ -36,6 +38,7 @@ stb_image_dep = declare_dependency(
 src_files = files(
     'src/application.cpp',
     'src/camera.cpp',
+    'src/font_atlas.cpp',
     'src/game_object.cpp',
     'src/logger.cpp',
     'src/main2.cpp',
@@ -44,7 +47,10 @@ src_files = files(
     'src/resource_manager.cpp',
     'src/shader.cpp',
     'src/texture.cpp',
+    'src/texture2d.cpp',
     'src/utils.cpp',
+    'src/uitext.cpp',
+    'src/text.cpp',
 )
 
 inc_dirs = include_directories('src')
@@ -61,6 +67,7 @@ executable(
         freetype2_dep,
         magic_enum_dep,
         stb_image_dep,
+        cereal_dep,
     ],
     install: false,
 )

@@ -7,14 +7,23 @@
 #include <stb_image.h>
 
 class Texture {
- private:
+ protected:
   GLuint id;
+  int width;
+  int height;
+  int channels;
+
+  Texture();
 
  public:
-  Texture(const std::filesystem::path& texturePath);
+  virtual ~Texture();
 
   void bind(unsigned int slot = 0) const;
+  void unbind() const;
 
-  ~Texture();
+  GLuint getId() const { return id; }
+  int getWidth() const { return width; }
+  int getHeight() const { return height; }
+  int getChannels() const { return channels; }
 };
 #endif /* TEXTURE_H */

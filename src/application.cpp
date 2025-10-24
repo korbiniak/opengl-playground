@@ -109,6 +109,10 @@ void Application::processInput() {
   if (keys[GLFW_KEY_LEFT_SHIFT]) {
     camera.moveDown(deltaTime);
   }
+  if (keys[GLFW_KEY_TAB]) {
+    wireframe = !wireframe;
+    glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+  }
 }
 
 void Application::initGLFW() {
@@ -156,7 +160,12 @@ void Application::loadResources() {
   resourceManager.loadShader("shader", "shaders/shader1.vs",
                              "shaders/shader1.fs");
 
+  resourceManager.loadShader("fontShader", "shaders/font.vs",
+                             "shaders/font.fs");
+
   resourceManager.loadTexture("texture", "assets/container.jpg");
+  resourceManager.loadFont("arial", "fonts/arial.ttf", 64);
+  resourceManager.loadFont("shiny", "fonts/shiny.ttf", 64);
 
   std::vector<Vertex> vertices = {
       {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
@@ -228,6 +237,13 @@ void Application::setupScene() {
   }
 }
 
+void Application::setupUI() {
+  ui.addText("text", resourceManager.getFont("arial"), {100.0F, 100.0F},
+             "Hello!", 2.0);
+  ui.addText("text2", resourceManager.getFont("shiny"), {300.0F, 300.0F},
+             "ciekawe", 3.0);
+}
+
 void Application::update() {
   LOG_DEBUG("Update");
   float currentFrame = glfwGetTime();
@@ -244,7 +260,9 @@ void Application::render() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   std::shared_ptr<Shader> shader = resourceManager.getShader("shader");
+  std::shared_ptr<Shader> fontShader = resourceManager.getShader("fontShader");
   scene.render(*shader);
+  ui.render(*fontShader, width, height);
 }
 
 Application::Application(int width, int height)
@@ -255,15 +273,19 @@ Application::Application(int width, int height)
       firstMouse(true),
       lastX(width / 2.0),
       lastY(height / 2.0),
-      mouseSensitivity(0.1F) {}
+      mouseSensitivity(0.1F),
+      wireframe(false) {}
 
 void Application::init() {
   initGLFW();
   initGL();
-  stbi_set_flip_vertically_on_load(true);
 
   loadResources();
+  checkGLError("After loading resources");
   setupScene();
+  checkGLError("After setting up scene");
+  setupUI();
+  checkGLError("After setting up UI");
 
   LOG_INFO("Initialization complete.");
 }
