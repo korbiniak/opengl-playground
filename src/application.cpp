@@ -7,8 +7,10 @@
 #include <GLFW/glfw3.h>
 
 #include "src/camera.h"
+#include "src/circular_motion_component.h"
+#include "src/game_object.h"
+#include "src/light_source.h"
 #include "src/logger.h"
-#include "src/model.h"
 #include "src/utils.h"
 #include "src/vertex.h"
 
@@ -109,9 +111,12 @@ void Application::processInput() {
   if (keys[GLFW_KEY_LEFT_SHIFT]) {
     camera.moveDown(deltaTime);
   }
-  if (keys[GLFW_KEY_TAB]) {
-    wireframe = !wireframe;
-    glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+  if (keys[GLFW_KEY_TAB] && !wireframe) {
+    wireframe = true;
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  } else {
+    wireframe = false;
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 }
 
@@ -157,53 +162,61 @@ void Application::initGL() {
 }
 
 void Application::loadResources() {
-  resourceManager.loadShader("shader", "shaders/shader1.vs",
-                             "shaders/shader1.fs");
+  resourceManager.loadShader("shader", "shaders/light.vert",
+                             "shaders/light.frag");
 
-  resourceManager.loadShader("fontShader", "shaders/font.vs",
-                             "shaders/font.fs");
+  resourceManager.loadShader("lightSourceShader", "shaders/light.vert",
+                             "shaders/light_src.frag");
+
+  resourceManager.loadShader("fontShader", "shaders/font.vert",
+                             "shaders/font.frag");
 
   resourceManager.loadTexture("texture", "assets/container.jpg");
   resourceManager.loadFont("arial", "fonts/arial.ttf", 64);
   resourceManager.loadFont("shiny", "fonts/shiny.ttf", 64);
 
   std::vector<Vertex> vertices = {
-      {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
-      {{0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
-      {{0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
-      {{-0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-      {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
-      {{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
-      {{0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
-      {{0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
-      {{-0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-      {{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
-      {{-0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{-0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
-      {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-      {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-      {{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
-      {{-0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
-      {{0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-      {{0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-      {{0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
-      {{0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-      {{0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
-      {{0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
-      {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-      {{-0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-      {{0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
-      {{0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-      {{-0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
-      {{-0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
+      {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, -1.0F}, {0.0F, 0.0F}},
+      {{0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, -1.0F}, {1.0F, 0.0F}},
+      {{0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, -1.0F}, {1.0F, 1.0F}},
+      {{0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, -1.0F}, {1.0F, 1.0F}},
+      {{-0.5F, 0.5F, -0.5F}, {0.0F, 0.0F, -1.0F}, {0.0F, 1.0F}},
+      {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, -1.0F}, {0.0F, 0.0F}},
+
+      {{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}, {0.0F, 0.0F}},
+      {{0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}, {1.0F, 0.0F}},
+      {{0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}, {1.0F, 1.0F}},
+      {{0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}, {1.0F, 1.0F}},
+      {{-0.5F, 0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}, {0.0F, 1.0F}},
+      {{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}, {0.0F, 0.0F}},
+
+      {{-0.5F, 0.5F, 0.5F}, {-1.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
+      {{-0.5F, 0.5F, -0.5F}, {-1.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
+      {{-0.5F, -0.5F, -0.5F}, {-1.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
+      {{-0.5F, -0.5F, -0.5F}, {-1.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
+      {{-0.5F, -0.5F, 0.5F}, {-1.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
+      {{-0.5F, 0.5F, 0.5F}, {-1.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
+
+      {{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
+      {{0.5F, 0.5F, -0.5F}, {1.0F, 0.0F, 0.0F}, {1.0F, 1.0F}},
+      {{0.5F, -0.5F, -0.5F}, {1.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
+      {{0.5F, -0.5F, -0.5F}, {1.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
+      {{0.5F, -0.5F, 0.5F}, {1.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
+      {{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
+
+      {{-0.5F, -0.5F, -0.5F}, {0.0F, -1.0F, 0.0F}, {0.0F, 1.0F}},
+      {{0.5F, -0.5F, -0.5F}, {0.0F, -1.0F, 0.0F}, {1.0F, 1.0F}},
+      {{0.5F, -0.5F, 0.5F}, {0.0F, -1.0F, 0.0F}, {1.0F, 0.0F}},
+      {{0.5F, -0.5F, 0.5F}, {0.0F, -1.0F, 0.0F}, {1.0F, 0.0F}},
+      {{-0.5F, -0.5F, 0.5F}, {0.0F, -1.0F, 0.0F}, {0.0F, 0.0F}},
+      {{-0.5F, -0.5F, -0.5F}, {0.0F, -1.0F, 0.0F}, {0.0F, 1.0F}},
+
+      {{-0.5F, 0.5F, -0.5F}, {0.0F, 1.0F, 0.0F}, {0.0F, 1.0F}},
+      {{0.5F, 0.5F, -0.5F}, {0.0F, 1.0F, 0.0F}, {1.0F, 1.0F}},
+      {{0.5F, 0.5F, 0.5F}, {0.0F, 1.0F, 0.0F}, {1.0F, 0.0F}},
+      {{0.5F, 0.5F, 0.5F}, {0.0F, 1.0F, 0.0F}, {1.0F, 0.0F}},
+      {{-0.5F, 0.5F, 0.5F}, {0.0F, 1.0F, 0.0F}, {0.0F, 0.0F}},
+      {{-0.5F, 0.5F, -0.5F}, {0.0F, 1.0F, 0.0F}, {0.0F, 1.0F}},
   };
 
   std::vector<unsigned int> indices(vertices.size());
@@ -218,31 +231,44 @@ float Application::getAspectRatio() {
 }
 
 void Application::setupScene() {
-  std::vector<glm::vec3> cubePositions = {
-      glm::vec3(0.0F, 0.0F, 0.0F),    glm::vec3(2.0F, 5.0F, -15.0F),
-      glm::vec3(-1.5F, -2.2F, -2.5F), glm::vec3(-3.8F, -2.0F, -12.3F),
-      glm::vec3(2.4F, -0.4F, -3.5F),  glm::vec3(-1.7F, 3.0F, -7.5F),
-      glm::vec3(1.3F, -2.0F, -2.5F),  glm::vec3(1.5F, 2.0F, -2.5F),
-      glm::vec3(1.5F, 0.2F, -1.5F),   glm::vec3(-1.3F, 1.0F, -1.5F),
-  };
+  std::shared_ptr<Material> cubeMaterial = std::make_unique<Material>(
+      resourceManager.getShader("shader"), nullptr, glm::vec3(1.0F));
+
+  std::shared_ptr<Material> lightSourceMaterial = std::make_unique<Material>(
+      resourceManager.getShader("lightSourceShader"), nullptr, glm::vec3(1.0F));
 
   scene.addCamera(Camera(glm::vec3(0.0f, 0.0f, 3.0f), getAspectRatio()));
 
-  for (glm::vec3 position : cubePositions) {
-    std::unique_ptr<Model> cube = std::make_unique<Model>(
-        resourceManager.getMesh("cube"), resourceManager.getTexture("texture"));
-    cube->rotate(90, {1.0F, 0.0F, 0.0F});
-    cube->setPosition(position);
-    scene.addObject(std::move(cube));
-  }
+  std::unique_ptr<GameObject> cube = std::make_unique<GameObject>(
+      resourceManager.getMesh("cube"), cubeMaterial);
+  cube->setPosition(glm::vec3(0.0F, 0.0F, 0.0F));
+
+  std::unique_ptr<LightSource> light = std::make_unique<LightSource>(
+      resourceManager.getMesh("cube"), lightSourceMaterial,
+      glm::vec3(2.0, 1.0, 1.0), 0.5F);
+  light->setPosition(glm::vec3(1.0F, 1.4F, 1.3F));
+  light->setScale(glm::vec3(0.1));
+  std::unique_ptr<CircularMotionComponent> circularMotion =
+      std::make_unique<CircularMotionComponent>(glm::vec3(1.0F), 2.0F, 1.0F,
+                                                glm::vec3(1.0F, 0.0F, 0.0F));
+  light->addComponent(std::move(circularMotion));
+
+  std::unique_ptr<LightSource> light2 = std::make_unique<LightSource>(
+      resourceManager.getMesh("cube"), lightSourceMaterial,
+      glm::vec3(0.3, 0.8, 0.1), 0.5F);
+  light2->setPosition(glm::vec3(1.0F, 1.4F, 1.3F));
+  light2->setScale(glm::vec3(0.1));
+  std::unique_ptr<CircularMotionComponent> circularMotion2 =
+      std::make_unique<CircularMotionComponent>(
+          glm::vec3(1.0, 1.0, 1.0), 2.0F, 0.5F, glm::vec3(0.0F, 1.0F, 0.0F));
+  light2->addComponent(std::move(circularMotion2));
+
+  scene.addObject(std::move(cube));
+  scene.addLightSource(std::move(light));
+  scene.addLightSource(std::move(light2));
 }
 
-void Application::setupUI() {
-  ui.addText("text", resourceManager.getFont("arial"), {100.0F, 100.0F},
-             "Hello!", 2.0);
-  ui.addText("text2", resourceManager.getFont("shiny"), {300.0F, 300.0F},
-             "ciekawe", 3.0);
-}
+void Application::setupUI() {}
 
 void Application::update() {
   LOG_DEBUG("Update");
@@ -259,9 +285,8 @@ void Application::render() {
   glClearColor(0.1F, 0.1F, 0.1F, 1.0F);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  std::shared_ptr<Shader> shader = resourceManager.getShader("shader");
   std::shared_ptr<Shader> fontShader = resourceManager.getShader("fontShader");
-  scene.render(*shader);
+  scene.render();
   ui.render(*fontShader, width, height);
 }
 

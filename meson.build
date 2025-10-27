@@ -43,7 +43,6 @@ src_files = files(
     'src/logger.cpp',
     'src/main2.cpp',
     'src/mesh.cpp',
-    'src/model.cpp',
     'src/resource_manager.cpp',
     'src/shader.cpp',
     'src/texture.cpp',
@@ -51,6 +50,10 @@ src_files = files(
     'src/utils.cpp',
     'src/uitext.cpp',
     'src/text.cpp',
+    'src/light_source.cpp',
+    'src/scene.cpp',
+    'src/material.cpp',
+    'src/circular_motion_component.cpp'
 )
 
 inc_dirs = include_directories('src')

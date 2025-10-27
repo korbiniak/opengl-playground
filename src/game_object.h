@@ -1,15 +1,26 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
+#include <typeindex>
+#include <unordered_map>
+
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "src/component.h"
+#include "src/exceptions.h"
+#include "src/material.h"
+#include "src/mesh.h"
 #include "src/shader.h"
 
 class GameObject {
  protected:
+  std::shared_ptr<Mesh> mesh;
+  std::shared_ptr<Material> material;
+  std::vector<std::unique_ptr<Component>> components;
+
   glm::vec3 position;
   glm::quat rotation;
   glm::vec3 scale;
@@ -19,12 +30,35 @@ class GameObject {
   void updateModelMatrix();
 
  public:
-  GameObject();
+  GameObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
 
-  void update(float deltaTime) {
-    (void)deltaTime;
-    updateModelMatrix();
+  template <typename T>
+  T* addComponent(std::unique_ptr<T> component) {
+    static_assert(std::is_base_of<Component, T>::value,
+                  "T must inherit from Component");
+
+    T* ptr = component.get();
+    component->onAttach(this);
+    components.push_back(std::move(component));
+    return ptr;
   }
+
+  template <typename T>
+  T* getComponent() {
+    throw NotImplementedException("");
+  }
+
+  template <typename T>
+  void removeComponent() {
+    throw NotImplementedException("");
+  }
+
+  template <typename T>
+  T* hasComponent() {
+    throw NotImplementedException("");
+  }
+
+  void update(float deltaTime);
 
   void setPosition(const glm::vec3& pos) {
     position = pos;
@@ -53,8 +87,10 @@ class GameObject {
   const glm::quat& getRotation() const { return rotation; }
   const glm::vec3& getScale() const { return scale; }
   const glm::mat4& getModelMatrix();
+  const std::shared_ptr<Material> getMaterial() const { return material; }
 
-  virtual void draw(Shader& shader) = 0;
+  /* Assumes material is already bound */
+  virtual void drawGeometry();
 };
 
 #endif /* GAME_OBJECT_H */

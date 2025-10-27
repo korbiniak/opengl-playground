@@ -12,7 +12,6 @@ Text::Text(std::shared_ptr<FontAtlas> font, const std::string& text,
   buildVertices();
 
   glBindVertexArray(VAO);
-  // glBindBuffer(GL_ARRAY_BUFFER, VBO);
   GLint boundBuffer;
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &boundBuffer);
   std::cout << "Bound VBO during attribute setup: " << boundBuffer << std::endl;
@@ -38,7 +37,7 @@ void Text::setColor(glm::vec3 newColor) {
 
 void Text::setFont(std::shared_ptr<FontAtlas> newFont) {
   needsRebuild = true;
-  font = newFont;
+  font = std::move(newFont);
 }
 
 void Text::buildVertices() {
@@ -61,7 +60,6 @@ void Text::buildVertices() {
     float texRight = static_cast<float>(glyph.x + glyph.width) / atlasWidth;
     float texTop = static_cast<float>(glyph.y) / atlasHeight;
     float texBottom = static_cast<float>(glyph.y + glyph.height) / atlasHeight;
-    LOG_INFO(xpos, " ", ypos, " ", w, " ", h);
 
     std::vector<Vertex> glyphVertices = {
         {{xpos, ypos + h, 0.0F}, {1.0F, 1.0F, 1.0F}, {texLeft, texTop}},

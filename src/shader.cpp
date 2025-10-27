@@ -131,3 +131,16 @@ void Shader::setUniform(const std::string& name, const glm::vec3& vec3) {
   glUniform3f(glGetUniformLocation(id, name.c_str()), vec3.x, vec3.y, vec3.z);
   checkGLError("after setUniform(vec3) for name " + name);
 }
+
+void Shader::setUniform(const std::string& name, float val) {
+  if (glGetUniformLocation(id, name.c_str()) == -1) {
+    LOG_WARNING("Can't find uniform ", name);
+  }
+  glUniform1f(glGetUniformLocation(id, name.c_str()), val);
+  checkGLError("after setUniform(float) for name " + name);
+}
+
+bool Shader::hasUniform(const std::string& name) const {
+  GLint location = glGetUniformLocation(id, name.c_str());
+  return location != -1;
+}

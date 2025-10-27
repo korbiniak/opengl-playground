@@ -42,9 +42,9 @@ class Camera {
   void moveUp(float deltaTime);
   void moveDown(float deltaTime);
 
-  const glm::mat4& getViewMatrix() { return view; }
-  const glm::mat4& getProjectionMatrix() { return projection; }
-  const glm::vec3& getPosition() { return position; }
+  const glm::mat4& getViewMatrix() const { return view; }
+  const glm::mat4& getProjectionMatrix() const { return projection; }
+  const glm::vec3& getPosition() const { return position; }
 
   void setAspectRatio(float newAspectRatio) {
     LOG_DEBUG("Switching aspect ratio: ", newAspectRatio);

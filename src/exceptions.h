@@ -22,4 +22,10 @@ class FileNotFoundException : public ResourceException {
       : ResourceException(msg) {}
 };
 
+class NotImplementedException : public std::logic_error {
+ public:
+  explicit NotImplementedException(const std::string& msg)
+      : std::logic_error(msg) {}
+};
+
 #endif /* EXCEPTIONS_H */
