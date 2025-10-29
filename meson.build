@@ -50,7 +50,6 @@ src_files = files(
     'src/utils.cpp',
     'src/uitext.cpp',
     'src/text.cpp',
-    'src/light_source.cpp',
     'src/scene.cpp',
     'src/material.cpp',
     'src/circular_motion_component.cpp'

@@ -8,9 +8,12 @@
 
 #include "src/camera.h"
 #include "src/circular_motion_component.h"
+#include "src/directional_light_component.h"
 #include "src/game_object.h"
-#include "src/light_source.h"
+#include "src/light_component.h"
 #include "src/logger.h"
+#include "src/point_light_component.h"
+#include "src/spotlight_component.h"
 #include "src/utils.h"
 #include "src/vertex.h"
 
@@ -172,6 +175,10 @@ void Application::loadResources() {
                              "shaders/font.frag");
 
   resourceManager.loadTexture("texture", "assets/container.jpg");
+  resourceManager.loadTexture("container2", "assets/container2.png");
+  resourceManager.loadTexture("container2_specular",
+                              "assets/container2_specular.png");
+
   resourceManager.loadFont("arial", "fonts/arial.ttf", 64);
   resourceManager.loadFont("shiny", "fonts/shiny.ttf", 64);
 
@@ -232,40 +239,72 @@ float Application::getAspectRatio() {
 
 void Application::setupScene() {
   std::shared_ptr<Material> cubeMaterial = std::make_unique<Material>(
-      resourceManager.getShader("shader"), nullptr, glm::vec3(1.0F));
+      resourceManager.getShader("shader"),
+      resourceManager.getTexture("container2"),
+      resourceManager.getTexture("container2_specular"));
 
   std::shared_ptr<Material> lightSourceMaterial = std::make_unique<Material>(
-      resourceManager.getShader("lightSourceShader"), nullptr, glm::vec3(1.0F));
+      resourceManager.getShader("lightSourceShader"), nullptr);
 
   scene.addCamera(Camera(glm::vec3(0.0f, 0.0f, 3.0f), getAspectRatio()));
 
-  std::unique_ptr<GameObject> cube = std::make_unique<GameObject>(
-      resourceManager.getMesh("cube"), cubeMaterial);
-  cube->setPosition(glm::vec3(0.0F, 0.0F, 0.0F));
+  glm::vec3 cubePositions[] = {
+      glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
+      glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
+      glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
+      glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
+      glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
-  std::unique_ptr<LightSource> light = std::make_unique<LightSource>(
-      resourceManager.getMesh("cube"), lightSourceMaterial,
-      glm::vec3(2.0, 1.0, 1.0), 0.5F);
-  light->setPosition(glm::vec3(1.0F, 1.4F, 1.3F));
-  light->setScale(glm::vec3(0.1));
-  std::unique_ptr<CircularMotionComponent> circularMotion =
-      std::make_unique<CircularMotionComponent>(glm::vec3(1.0F), 2.0F, 1.0F,
-                                                glm::vec3(1.0F, 0.0F, 0.0F));
-  light->addComponent(std::move(circularMotion));
+  for (size_t i = 0; i < 10; i++) {
+    std::unique_ptr<GameObject> cube = std::make_unique<GameObject>(
+        resourceManager.getMesh("cube"), cubeMaterial);
+    cube->setPosition(cubePositions[i]);
+    cube->rotate(20.0F * i, glm::vec3(1.0F, 0.3F, 0.5F));
+    scene.addObject(std::move(cube));
+  }
 
-  std::unique_ptr<LightSource> light2 = std::make_unique<LightSource>(
-      resourceManager.getMesh("cube"), lightSourceMaterial,
-      glm::vec3(0.3, 0.8, 0.1), 0.5F);
-  light2->setPosition(glm::vec3(1.0F, 1.4F, 1.3F));
-  light2->setScale(glm::vec3(0.1));
+  std::unique_ptr<GameObject> dirLight = std::make_unique<GameObject>(
+      resourceManager.getMesh("cube"), lightSourceMaterial);
+  dirLight->setPosition(glm::vec3(50.0F, 50.0F, 50.0F));
+  dirLight->setScale(glm::vec3(10.0));
+  dirLight->faceDirection(glm::vec3(-1.0F));
+
+  std::unique_ptr<DirectionalLightComponent> dirLightComponent =
+      std::make_unique<DirectionalLightComponent>(
+          glm::vec3(0.1F), glm::vec3(0.3F), glm::vec3(1.0F),
+          glm::vec3(-1.0F, -1.0F, -1.0F));
+  dirLight->addComponent(std::move(dirLightComponent));
+
+  std::unique_ptr<GameObject> pointLight = std::make_unique<GameObject>(
+      resourceManager.getMesh("cube"), lightSourceMaterial);
+  pointLight->setPosition(glm::vec3(1.0F, 1.4F, 1.3F));
+  pointLight->setScale(glm::vec3(0.1));
+
+  std::unique_ptr<PointLightComponent> pointLightComponent =
+      std::make_unique<PointLightComponent>();
+  pointLightComponent->setDiffuse(glm::vec3(1.0F, 0.0F, 0.0F));
+  pointLightComponent->setAmbient(glm::vec3(0.0F));
   std::unique_ptr<CircularMotionComponent> circularMotion2 =
       std::make_unique<CircularMotionComponent>(
-          glm::vec3(1.0, 1.0, 1.0), 2.0F, 0.5F, glm::vec3(0.0F, 1.0F, 0.0F));
-  light2->addComponent(std::move(circularMotion2));
+          glm::vec3(0.0, 1.0, 0.0), 2.0F, 1.0F, glm::vec3(0.0F, 1.0F, 0.0F));
+  pointLight->addComponent(std::move(circularMotion2));
+  pointLight->addComponent(std::move(pointLightComponent));
 
-  scene.addObject(std::move(cube));
-  scene.addLightSource(std::move(light));
-  scene.addLightSource(std::move(light2));
+  std::unique_ptr<SpotlightComponent> spotLightComponent =
+      std::make_unique<SpotlightComponent>(glm::vec3(0.0F, 0.0F, -1.0F));
+  spotLightComponent->setDiffuse(glm::vec3(0.0F, 1.0F, 0.0F));
+  spotLightComponent->setCutOff(20.0F, 25.0F);
+  std::unique_ptr<GameObject> spotLight = std::make_unique<GameObject>(
+      resourceManager.getMesh("cube"), lightSourceMaterial);
+  spotLight->addComponent(std::move(spotLightComponent));
+  spotLight->faceDirection(glm::vec3(0.0F, 0.0F, -1.0F));
+  spotLight->setScale(glm::vec3(1.0F));
+  spotLight->setPosition(glm::vec3(0.0F, 0.0F, 3.0F));
+  spotLight->setScale(glm::vec3(0.1F, 0.1F, 0.3F));
+
+  scene.addObject(std::move(dirLight));
+  scene.addObject(std::move(pointLight));
+  scene.addObject(std::move(spotLight));
 }
 
 void Application::setupUI() {}

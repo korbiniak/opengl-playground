@@ -7,16 +7,17 @@
 
 #include "src/camera.h"
 #include "src/game_object.h"
-#include "src/light_source.h"
+#include "src/light_component.h"
 
 class Scene {
  private:
   std::vector<std::unique_ptr<GameObject>> objects;
-  std::vector<std::unique_ptr<LightSource>> lightSources;
   std::vector<Camera> cameras;
   size_t activeCameraIdx;
 
   std::map<Material*, std::vector<GameObject*>> groupByMaterial();
+
+  std::vector<LightComponent*> collectLights();
 
   void setLightUniforms(Shader* shader);
 
@@ -33,11 +34,6 @@ class Scene {
 
   void addObject(std::unique_ptr<GameObject> obj) {
     objects.push_back(std::move(obj));
-  }
-
-  void addLightSource(std::unique_ptr<LightSource> lightSource) {
-    assert(lightSources.size() < 8);
-    lightSources.push_back(std::move(lightSource));
   }
 
   void addCamera(Camera cam) { cameras.push_back(cam); }

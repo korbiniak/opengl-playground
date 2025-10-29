@@ -1,6 +1,9 @@
 #include "src/game_object.h"
+
 #include <typeindex>
+
 #include "src/exceptions.h"
+#include "src/utils.h"
 
 GameObject::GameObject(std::shared_ptr<Mesh> mesh,
                        std::shared_ptr<Material> material)
@@ -47,4 +50,12 @@ void GameObject::update(float deltaTime) {
     updateModelMatrix();
     dirty = false;
   }
+}
+
+void GameObject::faceDirection(const glm::vec3& targetDir) {
+  glm::vec3 dir = glm::normalize(targetDir);
+  glm::vec3 forward = glm::vec3(0, 0, -1);
+
+  glm::quat rotation = rotationBetweenVectors(forward, dir);
+  setRotation(rotation);
 }

@@ -44,8 +44,14 @@ class GameObject {
   }
 
   template <typename T>
-  T* getComponent() {
-    throw NotImplementedException("");
+  std::vector<T*> getComponents() {
+    std::vector<T*> comps;
+    for (std::unique_ptr<Component>& component : components) {
+      if (T* casted = dynamic_cast<T*>(component.get())) {
+        comps.push_back(casted);
+      }
+    }
+    return comps;
   }
 
   template <typename T>
@@ -88,6 +94,8 @@ class GameObject {
   const glm::vec3& getScale() const { return scale; }
   const glm::mat4& getModelMatrix();
   const std::shared_ptr<Material> getMaterial() const { return material; }
+
+  void faceDirection(const glm::vec3& targetDir);
 
   /* Assumes material is already bound */
   virtual void drawGeometry();
