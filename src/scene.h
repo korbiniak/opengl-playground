@@ -11,8 +11,8 @@
 
 class Scene {
  private:
-  std::vector<std::unique_ptr<GameObject>> objects;
-  std::vector<Camera> cameras;
+  std::vector<std::unique_ptr<GameObject>> rootObjects;
+  std::vector<Camera*> cameras;
   size_t activeCameraIdx;
 
   std::map<Material*, std::vector<GameObject*>> groupByMaterial();
@@ -21,24 +21,41 @@ class Scene {
 
   void setLightUniforms(Shader* shader);
 
+  template <typename Func>
+  void forEachObject(Func func) {
+    for (auto& root : rootObjects) {
+      func(root.get());
+      root->forEachChild(func);
+    }
+  }
+
  public:
   Scene() : activeCameraIdx(0) {}
 
   void setActiveCamera(size_t index) { activeCameraIdx = index; }
 
-  Camera& getActiveCamera() { return cameras[activeCameraIdx]; }
+  Camera& getActiveCamera() { return *cameras[activeCameraIdx]; }
 
   void update(float deltaTime);
 
   void render();
 
   void addObject(std::unique_ptr<GameObject> obj) {
-    objects.push_back(std::move(obj));
+    rootObjects.push_back(std::move(obj));
   }
 
-  void addCamera(Camera cam) { cameras.push_back(cam); }
+  void addCamera(std::unique_ptr<Camera> cam) {
+    Camera* camPtr = cam.get();
+    cameras.push_back(camPtr);
+    rootObjects.push_back(std::move(cam));
+  }
 
-  std::vector<Camera>& getAllCameras() { return cameras; }
+  GameObject* addChildToObject(GameObject* parent,
+                               std::unique_ptr<GameObject> child) {
+    return parent->addChild(std::move(child));
+  }
+
+  std::vector<Camera*>& getAllCameras() { return cameras; }
 };
 
 #endif /* SCENE_H */

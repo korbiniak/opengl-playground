@@ -39,7 +39,7 @@ class PointLightComponent : public LightComponent {
 
   void setUniforms(Shader* shader, int idx) override {
     shader->setUniform(makeUniformName(idx, "position"),
-                       gameObject->getPosition());
+                       gameObject->getWorldPosition());
 
     shader->setUniform(makeUniformName(idx, "constant"), getConstant());
     shader->setUniform(makeUniformName(idx, "linear"), getLinear());

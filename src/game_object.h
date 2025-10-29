@@ -24,10 +24,15 @@ class GameObject {
   glm::vec3 position;
   glm::quat rotation;
   glm::vec3 scale;
-  glm::mat4 modelMatrix;
-  bool dirty;
+  mutable glm::mat4 localMatrix;
+  mutable glm::mat4 modelMatrix;
+  mutable bool dirty;
 
-  void updateModelMatrix();
+  GameObject* parent;
+  std::vector<std::unique_ptr<GameObject>> children;
+
+  void updateModelMatrix() const;
+  void markDirty();
 
  public:
   GameObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
@@ -64,38 +69,59 @@ class GameObject {
     throw NotImplementedException("");
   }
 
-  void update(float deltaTime);
+  virtual void update(float deltaTime);
 
   void setPosition(const glm::vec3& pos) {
     position = pos;
-    dirty = true;
+    markDirty();
   }
   void setRotation(const glm::quat& rot) {
     rotation = rot;
-    dirty = true;
+    markDirty();
   }
   void setScale(const glm::vec3& s) {
     scale = s;
-    dirty = true;
+    markDirty();
   }
 
   void translate(const glm::vec3& offset) {
     position += offset;
-    dirty = true;
+    markDirty();
   }
   void rotate(float angle, const glm::vec3& axis) {
     rotation =
         glm::angleAxis(glm::radians(angle), glm::normalize(axis)) * rotation;
-    dirty = true;
+    markDirty();
   }
 
   const glm::vec3& getPosition() const { return position; }
   const glm::quat& getRotation() const { return rotation; }
   const glm::vec3& getScale() const { return scale; }
-  const glm::mat4& getModelMatrix();
+  const glm::mat4& getModelMatrix() const;
   const std::shared_ptr<Material> getMaterial() const { return material; }
 
   void faceDirection(const glm::vec3& targetDir);
+
+  void setParent(GameObject* newParent);
+  GameObject* addChild(std::unique_ptr<GameObject> child);
+  std::unique_ptr<GameObject> removeChild(GameObject* child);
+  GameObject* getParent() const { return parent; }
+  const std::vector<std::unique_ptr<GameObject>>& getChildren() const {
+    return children;
+  }
+
+  glm::vec3 getWorldPosition() const;
+  glm::quat getWorldRotation() const;
+  glm::vec3 getWorldScale() const;
+  glm::mat4 getWorldMatrix() const;
+
+  template <typename Func>
+  void forEachChild(Func func) {
+    for (auto& child : children) {
+      func(child.get());
+      child->forEachChild(func);
+    }
+  }
 
   /* Assumes material is already bound */
   virtual void drawGeometry();

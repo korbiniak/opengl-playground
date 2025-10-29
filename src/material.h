@@ -33,6 +33,9 @@ class Material {
 
   void setShader(std::shared_ptr<Shader> s) { shader = std::move(s); }
   void setTexture(std::shared_ptr<Texture> tex) { texture = std::move(tex); }
+  void setBaseColor(const glm::vec3& color) { baseColor = color; }
+
+  const glm::vec3& getBaseColor() const { return baseColor; }
 };
 
 #endif /* MATERIAL_H */

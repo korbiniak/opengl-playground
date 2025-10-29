@@ -3,34 +3,31 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
+#include "src/game_object.h"
 #include "src/logger.h"
 
-/* Camera class. No roll, only yaw and pitch. */
-class Camera {
+class Camera : public GameObject {
  private:
-  glm::vec3 position;
-  glm::vec3 front;
-  glm::vec3 up;
-  glm::vec3 right;
-
   float speed;
-  float yaw;
-  float pitch;
   float aspectRatio;
   float fov;
 
   glm::mat4 view;
   glm::mat4 projection;
 
-  void updateVectors();
+  glm::vec3 worldUp;
+  float yaw;
+  float pitch;
 
  public:
   Camera(glm::vec3 position, float aspectRatio = 800.0F / 600.0F,
          glm::vec3 front = glm::vec3(0.0F, 0.0F, -1.0F),
          glm::vec3 up = glm::vec3(0.0F, 1.0F, 0.0F), float speed = 2.5F,
-         float yaw = -90.0F, float pitch = 0.0F, float fov = 45.0F);
+         float fov = 45.0F);
 
+  void update(float deltaTime) override;
   void updateMatrices();
 
   void rotate(float xoffset, float yoffset);
@@ -42,9 +39,12 @@ class Camera {
   void moveUp(float deltaTime);
   void moveDown(float deltaTime);
 
+  glm::vec3 getFront() const;
+  glm::vec3 getUp() const;
+  glm::vec3 getRight() const;
+
   const glm::mat4& getViewMatrix() const { return view; }
   const glm::mat4& getProjectionMatrix() const { return projection; }
-  const glm::vec3& getPosition() const { return position; }
 
   void setAspectRatio(float newAspectRatio) {
     LOG_DEBUG("Switching aspect ratio: ", newAspectRatio);

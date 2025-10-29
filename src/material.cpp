@@ -23,9 +23,7 @@ void Material::bind() const {
     if (texture) {
       texture->bind(0);
       shader->setUniform("material.diffuse", 0);
-      // shader->setUniform("hasTexture", true);
     } else {
-      // shader->setUniform("hasTexture", false);
       shader->setUniform("baseColor", baseColor);
     }
     if (specular) {

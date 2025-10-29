@@ -40,10 +40,10 @@ glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
   glm::vec3 rotationAxis;
 
   if (cosTheta < -0.999999f) {
-    // Vectors are opposite, pick any perpendicular axis
     rotationAxis = glm::cross(glm::vec3(0, 0, 1), start);
-    if (glm::length(rotationAxis) < 0.01f)  // Bad luck, parallel
+    if (glm::length(rotationAxis) < 0.01f) {
       rotationAxis = glm::cross(glm::vec3(1, 0, 0), start);
+    }
     rotationAxis = glm::normalize(rotationAxis);
     return glm::angleAxis(glm::radians(180.0f), rotationAxis);
   }

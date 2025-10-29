@@ -25,6 +25,13 @@ class LightComponent : public Component {
   LightComponent(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular)
       : Component(), ambient(ambient), diffuse(diffuse), specular(specular) {}
 
+  void onAttach(GameObject* obj) override {
+    Component::onAttach(obj);
+    if (gameObject && gameObject->getMaterial()) {
+      gameObject->getMaterial()->setBaseColor(diffuse);
+    }
+  }
+
   void update(float deltaTime) override {}
 
   const glm::vec3& getAmbient() { return ambient; }

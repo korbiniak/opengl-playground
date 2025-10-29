@@ -216,7 +216,7 @@ unsigned int loadTexture(const std::string& path) {
 void renderText(Shader& s, unsigned int fontVAO, unsigned int fontVBO,
                 const std::string& text, float x, float y, float scale,
                 glm::vec3 color) {
-  glDepthMask(GL_FALSE);  // Don't write into the depth buffer
+  glDepthMask(GL_FALSE);
   s.use();
   s.setUniform("textColor", color);
   glActiveTexture(GL_TEXTURE0);
@@ -249,7 +249,7 @@ void renderText(Shader& s, unsigned int fontVAO, unsigned int fontVBO,
   }
   glBindVertexArray(0);
   glBindTexture(GL_TEXTURE_2D, 0);
-  glDepthMask(GL_TRUE);  // Don't write into the depth buffer
+  glDepthMask(GL_TRUE);
 }
 
 int main() {

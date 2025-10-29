@@ -9,35 +9,33 @@
 #include "src/spotlight_component.h"
 
 void Scene::update(float deltaTime) {
-  cameras[activeCameraIdx].updateMatrices();
-
-  for (auto& obj : objects) {
-    obj->update(deltaTime);
-  }
+  forEachObject([deltaTime](GameObject* obj) { obj->update(deltaTime); });
 }
 
 std::map<Material*, std::vector<GameObject*>> Scene::groupByMaterial() {
   std::map<Material*, std::vector<GameObject*>> groups;
 
-  for (auto& obj : objects) {
+  forEachObject([&groups](GameObject* obj) {
     Material* mat = obj->getMaterial().get();
     if (mat) {
-      groups[mat].push_back(obj.get());
+      groups[mat].push_back(obj);
     }
-  }
+  });
 
   return groups;
 }
 
 std::vector<LightComponent*> Scene::collectLights() {
   std::vector<LightComponent*> lights;
-  for (std::unique_ptr<GameObject>& obj : objects) {
+
+  forEachObject([&lights](GameObject* obj) {
     for (LightComponent* light : obj->getComponents<LightComponent>()) {
       if (light->isEnabled()) {
         lights.push_back(light);
       }
     }
-  }
+  });
+
   LOG_DEBUG("Collected ", lights.size(), " lights");
   return lights;
 }
@@ -102,7 +100,7 @@ void Scene::render() {
       setLightUniforms(shader);
     }
     if (needsCameraPosition(shader)) {
-      shader->setUniform("viewPos", camera.getPosition());
+      shader->setUniform("viewPos", camera.getWorldPosition());
     }
     for (GameObject* obj : group) {
       obj->drawGeometry();

@@ -21,8 +21,9 @@ class DirectionalLightComponent : public LightComponent {
 
   glm::vec3 getDirection() const {
     if (gameObject) {
-      return glm::normalize(glm::vec3(
-          glm::mat4_cast(gameObject->getRotation()) * glm::vec4(0, 0, -1, 0)));
+      return glm::normalize(
+          glm::vec3(glm::mat4_cast(gameObject->getWorldRotation()) *
+                    glm::vec4(0, 0, -1, 0)));
     }
     return direction;
   }

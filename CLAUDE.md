@@ -170,3 +170,6 @@ Custom logging system in `src/logger.h` with macros:
 - `LOG_ERROR()`: Error messages
 
 Log level is controlled via command-line `--log-level` flag.
+- Always use /* */ comments
+- Never add inline comments explaining particular lines of code. Only add comments for tricky and unobvious lines of code.
+- Never try to compile or run the project.

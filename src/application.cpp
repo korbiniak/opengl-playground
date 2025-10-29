@@ -78,8 +78,8 @@ void Application::framebufferSizeCallback(int xpos, int ypos) {
   width = xpos;
   height = ypos;
   firstMouse = true;
-  for (Camera& camera : scene.getAllCameras()) {
-    camera.setAspectRatio(getAspectRatio());
+  for (Camera* camera : scene.getAllCameras()) {
+    camera->setAspectRatio(getAspectRatio());
   }
 }
 
@@ -243,10 +243,8 @@ void Application::setupScene() {
       resourceManager.getTexture("container2"),
       resourceManager.getTexture("container2_specular"));
 
-  std::shared_ptr<Material> lightSourceMaterial = std::make_unique<Material>(
-      resourceManager.getShader("lightSourceShader"), nullptr);
-
-  scene.addCamera(Camera(glm::vec3(0.0f, 0.0f, 3.0f), getAspectRatio()));
+  std::unique_ptr<Camera> camera =
+      std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), getAspectRatio());
 
   glm::vec3 cubePositions[] = {
       glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
@@ -263,8 +261,11 @@ void Application::setupScene() {
     scene.addObject(std::move(cube));
   }
 
+  std::shared_ptr<Material> dirLightMaterial = std::make_unique<Material>(
+      resourceManager.getShader("lightSourceShader"), nullptr);
   std::unique_ptr<GameObject> dirLight = std::make_unique<GameObject>(
-      resourceManager.getMesh("cube"), lightSourceMaterial);
+      resourceManager.getMesh("cube"), dirLightMaterial);
+  dirLightMaterial->setBaseColor(glm::vec3(1.0F));
   dirLight->setPosition(glm::vec3(50.0F, 50.0F, 50.0F));
   dirLight->setScale(glm::vec3(10.0));
   dirLight->faceDirection(glm::vec3(-1.0F));
@@ -275,8 +276,10 @@ void Application::setupScene() {
           glm::vec3(-1.0F, -1.0F, -1.0F));
   dirLight->addComponent(std::move(dirLightComponent));
 
+  std::shared_ptr<Material> pointLightMaterial = std::make_unique<Material>(
+      resourceManager.getShader("lightSourceShader"), nullptr);
   std::unique_ptr<GameObject> pointLight = std::make_unique<GameObject>(
-      resourceManager.getMesh("cube"), lightSourceMaterial);
+      resourceManager.getMesh("cube"), pointLightMaterial);
   pointLight->setPosition(glm::vec3(1.0F, 1.4F, 1.3F));
   pointLight->setScale(glm::vec3(0.1));
 
@@ -294,17 +297,20 @@ void Application::setupScene() {
       std::make_unique<SpotlightComponent>(glm::vec3(0.0F, 0.0F, -1.0F));
   spotLightComponent->setDiffuse(glm::vec3(0.0F, 1.0F, 0.0F));
   spotLightComponent->setCutOff(20.0F, 25.0F);
+
+  std::shared_ptr<Material> spotLightMaterial = std::make_unique<Material>(
+      resourceManager.getShader("lightSourceShader"), nullptr);
   std::unique_ptr<GameObject> spotLight = std::make_unique<GameObject>(
-      resourceManager.getMesh("cube"), lightSourceMaterial);
+      resourceManager.getMesh("cube"), spotLightMaterial);
   spotLight->addComponent(std::move(spotLightComponent));
   spotLight->faceDirection(glm::vec3(0.0F, 0.0F, -1.0F));
-  spotLight->setScale(glm::vec3(1.0F));
-  spotLight->setPosition(glm::vec3(0.0F, 0.0F, 3.0F));
   spotLight->setScale(glm::vec3(0.1F, 0.1F, 0.3F));
+  spotLight->setPosition(glm::vec3(0.2F, -0.2F, -0.5F));
+  camera->addChild(std::move(spotLight));
 
   scene.addObject(std::move(dirLight));
   scene.addObject(std::move(pointLight));
-  scene.addObject(std::move(spotLight));
+  scene.addCamera(std::move(camera));
 }
 
 void Application::setupUI() {}
