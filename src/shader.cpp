@@ -78,9 +78,46 @@ GLuint linkProgram(unsigned int vertexShader, unsigned int fragmentShader) {
   return shaderProgram;
 }
 
+std::string loadShaderWithIncludes(const std::filesystem::path& path) {
+  std::stringstream result;
+  std::ifstream sourceFile;
+  LOG_INFO("Opening shader with includes: ", path);
+  sourceFile.exceptions(std::ifstream::badbit);
+
+  try {
+    sourceFile.open(path);
+    std::string line;
+    while (std::getline(sourceFile, line)) {
+      if (line.find("#include") != std::string::npos) {
+        size_t start = line.find('"');
+        if (start != std::string::npos) {
+          start++;
+          size_t end = line.find('"', start);
+          if (end != std::string::npos) {
+            std::string includePath = line.substr(start, end - start);
+            std::filesystem::path includeFullPath =
+                path.parent_path() / includePath;
+
+            result << loadShaderWithIncludes(includeFullPath);
+            continue;
+          }
+        }
+      }
+      result << line << "\n";
+    }
+
+    sourceFile.close();
+  } catch (std::ifstream::failure& e) {
+    LOG_ERROR("Failed reading shader under ", path, ": ", strerror(errno));
+    throw;
+  }
+
+  return result.str();
+}
+
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
-  std::string vShaderCode = readSourceFile(vertexPath);
-  std::string fShaderCode = readSourceFile(fragmentPath);
+  std::string vShaderCode = loadShaderWithIncludes(vertexPath);
+  std::string fShaderCode = loadShaderWithIncludes(fragmentPath);
   GLuint vertexShader = compileShader(vShaderCode, GL_VERTEX_SHADER);
   GLuint fragmentShader = compileShader(fShaderCode, GL_FRAGMENT_SHADER);
   GLuint shaderProgram = linkProgram(vertexShader, fragmentShader);
@@ -95,6 +132,7 @@ Shader::~Shader() {
 }
 
 void Shader::use() {
+  LOG_DEBUG("Using shader ", name);
   glUseProgram(id);
 
   checkGLError("after shader.use()");

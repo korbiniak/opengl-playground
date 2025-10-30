@@ -5,6 +5,7 @@
 
 #include <stb_image.h>
 
+#include "src/logger.h"
 #include "src/utils.h"
 
 Texture::Texture() : id(0), width(0), height(0), channels(0) {
@@ -12,6 +13,7 @@ Texture::Texture() : id(0), width(0), height(0), channels(0) {
 }
 
 void Texture::bind(unsigned int slot) const {
+  LOG_DEBUG("Binding texture ", getName(), " under slot ", slot);
   glActiveTexture(GL_TEXTURE0 + slot);
   checkGLError("glactivate");
   glBindTexture(GL_TEXTURE_2D, id);

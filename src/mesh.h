@@ -9,18 +9,21 @@
 #include "src/vertex.h"
 
 class Mesh {
- private:
+ protected:
   std::string name;
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
   size_t indicesCount;
 
+  std::vector<Vertex> vertices;
+  std::vector<unsigned int> indices;
+
  public:
   Mesh(const std::vector<Vertex>& vertices,
        const std::vector<unsigned int>& indices);
 
-  void draw();
+  virtual void draw();
 
   const std::string& getName() const { return name; }
   void setName(const std::string& n) { name = n; }

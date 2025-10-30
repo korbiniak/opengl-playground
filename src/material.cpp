@@ -20,11 +20,12 @@ void Material::bind() const {
       shader->setUniform("material.shininess", shininess);
     }
 
+    if (shader->hasUniform("baseColor")) {
+      shader->setUniform("baseColor", baseColor);
+    }
     if (texture) {
       texture->bind(0);
       shader->setUniform("material.diffuse", 0);
-    } else {
-      shader->setUniform("baseColor", baseColor);
     }
     if (specular) {
       specular->bind(1);

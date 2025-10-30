@@ -38,21 +38,21 @@ stb_image_dep = declare_dependency(
 src_files = files(
     'src/application.cpp',
     'src/camera.cpp',
+    'src/circular_motion_component.cpp',
     'src/font_atlas.cpp',
     'src/game_object.cpp',
     'src/logger.cpp',
     'src/main2.cpp',
+    'src/material.cpp',
     'src/mesh.cpp',
     'src/resource_manager.cpp',
+    'src/scene.cpp',
     'src/shader.cpp',
+    'src/text_mesh.cpp',
     'src/texture.cpp',
     'src/texture2d.cpp',
-    'src/utils.cpp',
     'src/uitext.cpp',
-    'src/text.cpp',
-    'src/scene.cpp',
-    'src/material.cpp',
-    'src/circular_motion_component.cpp'
+    'src/utils.cpp',
 )
 
 inc_dirs = include_directories('src')

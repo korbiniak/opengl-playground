@@ -8,9 +8,9 @@ uniform vec3 textColor;
 
 void main() {
     float distance = texture(fontAtlas, texCoords).r;
-    
+
     float smoothWidth = fwidth(distance) * 0.5;
     float alpha = smoothstep(0.5 - smoothWidth, 0.5 + smoothWidth, distance);
-    
+
     color = vec4(textColor, alpha);
 }

@@ -53,6 +53,7 @@ void GameObject::drawGeometry() {
   if (!material) {
     return;
   }
+  LOG_DEBUG("Drawing geometry for object ", name, "(", id, ")");
   material->getShader()->setUniform("model", getModelMatrix());
   if (mesh) {
     mesh->draw();
@@ -66,7 +67,11 @@ void GameObject::update(float deltaTime) {
     }
   }
 
+  LOG_DEBUG("Calling update on GameObject ", name, "(", id, ")");
+
   if (dirty) {
+    LOG_DEBUG("Recalculating model matrix.");
+
     updateModelMatrix();
     dirty = false;
   }

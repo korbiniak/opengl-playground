@@ -22,9 +22,6 @@ void FontAtlas::setupTexture(unsigned char* data) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   glBindTexture(GL_TEXTURE_2D, 0);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 FontAtlas::FontAtlas(const std::filesystem::path& atlasPath) : Texture() {

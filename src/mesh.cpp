@@ -3,7 +3,8 @@
 #include "src/logger.h"
 
 Mesh::Mesh(const std::vector<Vertex>& vertices,
-           const std::vector<unsigned int>& indices) {
+           const std::vector<unsigned int>& indices)
+    : vertices(vertices), indices(indices) {
   indicesCount = indices.size();
 
   glGenVertexArrays(1, &VAO);

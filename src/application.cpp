@@ -16,6 +16,7 @@
 #include "src/spotlight_component.h"
 #include "src/utils.h"
 #include "src/vertex.h"
+#include "src/world_text.h"
 
 void Application::keyCallbackStatic(GLFWwindow* window, int key, int scancode,
                                     int action, int mods) {
@@ -117,7 +118,8 @@ void Application::processInput() {
   if (keys[GLFW_KEY_TAB] && !wireframe) {
     wireframe = true;
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  } else {
+  }
+  if (!keys[GLFW_KEY_TAB] && wireframe) {
     wireframe = false;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
@@ -162,6 +164,8 @@ void Application::initGL() {
 
   glViewport(0, 0, width, height);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Application::loadResources() {
@@ -173,6 +177,9 @@ void Application::loadResources() {
 
   resourceManager.loadShader("fontShader", "shaders/font.vert",
                              "shaders/font.frag");
+
+  resourceManager.loadShader("3dFontShader", "shaders/light.vert",
+                             "shaders/light_font.frag");
 
   resourceManager.loadTexture("texture", "assets/container.jpg");
   resourceManager.loadTexture("container2", "assets/container2.png");
@@ -253,11 +260,25 @@ void Application::setupScene() {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
   for (size_t i = 0; i < 10; i++) {
+
+    auto textMaterial =
+        std::make_shared<Material>(resourceManager.getShader("3dFontShader"),
+                                   resourceManager.getFont("arial"), nullptr);
+    textMaterial->setBaseColor(glm::vec3(1.0F));
+
+    auto text =
+        std::make_unique<WorldText>(resourceManager.getFont("arial"),
+                                    std::move(textMaterial), "Michal to pala");
+    text->setName("text" + std::to_string(i));
+    text->setScale(glm::vec3(0.001F));
+    text->setPosition(glm::vec3(-0.25F, 0.0F, 0.501F));
+
     std::unique_ptr<GameObject> cube =
         std::make_unique<GameObject>(resourceManager.getMesh("cube"),
                                      resourceManager.getMaterial("container2"));
     cube->setPosition(cubePositions[i]);
     cube->rotate(20.0F * i, glm::vec3(1.0F, 0.3F, 0.5F));
+    cube->addChild(std::move(text));
     scene.addObject(std::move(cube));
   }
 
@@ -313,7 +334,10 @@ void Application::setupScene() {
   scene.addCamera(std::move(camera));
 }
 
-void Application::setupUI() {}
+void Application::setupUI() {
+  ui.addText("title", resourceManager.getFont("arial"), glm::vec2(25.0F, 25.0F),
+             "Fajna giera", 1.0F);
+}
 
 void Application::update() {
   LOG_DEBUG("Update");
@@ -332,7 +356,7 @@ void Application::render() {
 
   std::shared_ptr<Shader> fontShader = resourceManager.getShader("fontShader");
   scene.render();
-  ui.render(*fontShader, width, height);
+  ui.render(fontShader.get(), width, height);
 }
 
 Application::Application(int width, int height)

@@ -173,3 +173,4 @@ Log level is controlled via command-line `--log-level` flag.
 - Always use /* */ comments
 - Never add inline comments explaining particular lines of code. Only add comments for tricky and unobvious lines of code.
 - Never try to compile or run the project.
+- Always write full type of a variable if not created from a factory

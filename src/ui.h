@@ -8,7 +8,6 @@
 
 class UI {
  private:
-  /* TODO: map from names to texts */
   std::unordered_map<std::string, std::unique_ptr<UIText>> texts;
 
  public:
@@ -20,10 +19,10 @@ class UI {
                                        glm::vec3(1.0F), scale)));
   }
 
-  void render(Shader& shader, int screenWidth, int screenHeight) {
-    shader.use();
+  void render(Shader* shader, int screenWidth, int screenHeight) {
+    shader->use();
     for (auto& text : texts) {
-      text.second->render(shader, screenWidth, screenHeight);
+      text.second->draw(shader, screenWidth, screenHeight);
     }
   }
 };

@@ -1,49 +1,41 @@
-#include "src/text.h"
+#include "src/text_mesh.h"
 
 #include "src/logger.h"
 #include "src/utils.h"
 
-Text::Text(std::shared_ptr<FontAtlas> font, const std::string& text,
-           glm::vec3 color)
-    : font(font), text(text), color(color), needsRebuild(false) {
+TextMesh::TextMesh(std::shared_ptr<FontAtlas> font, const std::string& text,
+                   bool disableDepthMask)
+    : Mesh(std::vector<Vertex>(), std::vector<unsigned int>()),
+      font(std::move(font)),
+      text(text),
+      needsRebuild(false),
+      disableDepthMask(disableDepthMask) {
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
 
   buildVertices();
 
   glBindVertexArray(VAO);
-  GLint boundBuffer;
-  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &boundBuffer);
-  std::cout << "Bound VBO during attribute setup: " << boundBuffer << std::endl;
   Vertex::enableVertexAttribArray();
 
   glBindVertexArray(0);
 }
 
-Text::~Text() {
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-}
-
-void Text::setText(const std::string& newText) {
+void TextMesh::setText(const std::string& newTextMesh) {
   needsRebuild = true;
-  text = newText;
+  text = newTextMesh;
 }
 
-void Text::setColor(glm::vec3 newColor) {
-  needsRebuild = true;
-  color = newColor;
-}
-
-void Text::setFont(std::shared_ptr<FontAtlas> newFont) {
+void TextMesh::setFont(std::shared_ptr<FontAtlas> newFont) {
   needsRebuild = true;
   font = std::move(newFont);
 }
 
-void Text::buildVertices() {
+void TextMesh::buildVertices() {
   vertices.clear();
   int x = 10;
   int y = 10;
+  float z = 0;
 
   float atlasWidth = static_cast<float>(font->getWidth());
   float atlasHeight = static_cast<float>(font->getHeight());
@@ -62,17 +54,19 @@ void Text::buildVertices() {
     float texBottom = static_cast<float>(glyph.y + glyph.height) / atlasHeight;
 
     std::vector<Vertex> glyphVertices = {
-        {{xpos, ypos + h, 0.0F}, {1.0F, 1.0F, 1.0F}, {texLeft, texTop}},
-        {{xpos, ypos, 0.0F}, {1.0F, 1.0F, 1.0F}, {texLeft, texBottom}},
-        {{xpos + w, ypos, 0.0F}, {1.0F, 1.0F, 1.0F}, {texRight, texBottom}},
-        {{xpos, ypos + h, 0.0F}, {1.0F, 1.0F, 1.0F}, {texLeft, texTop}},
-        {{xpos + w, ypos, 0.0F}, {1.0F, 1.0F, 1.0F}, {texRight, texBottom}},
-        {{xpos + w, ypos + h, 0.0F}, {1.0F, 1.0F, 1.0F}, {texRight, texTop}},
+        {{xpos, ypos + h, z}, {1.0F, 1.0F, 1.0F}, {texLeft, texTop}},
+        {{xpos, ypos, z}, {1.0F, 1.0F, 1.0F}, {texLeft, texBottom}},
+        {{xpos + w, ypos, z}, {1.0F, 1.0F, 1.0F}, {texRight, texBottom}},
+        {{xpos, ypos + h, z}, {1.0F, 1.0F, 1.0F}, {texLeft, texTop}},
+        {{xpos + w, ypos, z}, {1.0F, 1.0F, 1.0F}, {texRight, texBottom}},
+        {{xpos + w, ypos + h, z}, {1.0F, 1.0F, 1.0F}, {texRight, texTop}},
     };
 
     vertices.insert(vertices.end(), glyphVertices.begin(), glyphVertices.end());
 
     x += (glyph.advance);
+    /* So hacky... */
+    z += 0.001;
   }
 
   glBindVertexArray(VAO);
@@ -82,20 +76,23 @@ void Text::buildVertices() {
   glBindVertexArray(0);
 }
 
-void Text::render(Shader& shader, const glm::mat4& transform) {
-  glDepthMask(GL_FALSE);
-  shader.use();
-  shader.setUniform("textColor", color);
-  shader.setUniform("transform", transform);
-
+void TextMesh::draw() {
+  LOG_DEBUG("Drawing text mesh!");
+  if (disableDepthMask) {
+    glDepthMask(GL_FALSE);
+  }
+  /* TODO: This can be done much cleaner. This doesn't have to know anything
+     about the shader, just draw the vertices */
   if (needsRebuild) {
     buildVertices();
     needsRebuild = false;
   }
 
-  font->bind(0);
   glBindVertexArray(VAO);
   glDrawArrays(GL_TRIANGLES, 0, vertices.size());
   glBindVertexArray(0);
-  glDepthMask(GL_TRUE);
+
+  if (disableDepthMask) {
+    glDepthMask(GL_TRUE);
+  }
 }
