@@ -1,6 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <string>
 #include <vector>
 
 #include <GL/glew.h>
@@ -9,6 +10,7 @@
 
 class Mesh {
  private:
+  std::string name;
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
@@ -19,6 +21,9 @@ class Mesh {
        const std::vector<unsigned int>& indices);
 
   void draw();
+
+  const std::string& getName() const { return name; }
+  void setName(const std::string& n) { name = n; }
 
   ~Mesh();
 };

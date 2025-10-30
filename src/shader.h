@@ -8,6 +8,9 @@
 #include <string>
 
 class Shader {
+ private:
+  std::string name;
+
  public:
   GLint id;
 
@@ -18,6 +21,9 @@ class Shader {
   void setUniform(const std::string& name, const glm::mat4& mat4);
   void setUniform(const std::string& name, const glm::vec3& vec3);
   bool hasUniform(const std::string& name) const;
+
+  const std::string& getName() const { return name; }
+  void setName(const std::string& n) { name = n; }
 
   ~Shader();
 };

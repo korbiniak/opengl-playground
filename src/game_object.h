@@ -1,6 +1,8 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
+#include <cstdint>
+#include <string>
 #include <typeindex>
 #include <unordered_map>
 
@@ -16,7 +18,14 @@
 #include "src/shader.h"
 
 class GameObject {
+ private:
+  static uint64_t nextId;
+  static uint64_t generateId() { return nextId++; }
+
  protected:
+  uint64_t id;
+  std::string name;
+
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<Material> material;
   std::vector<std::unique_ptr<Component>> components;
@@ -36,6 +45,16 @@ class GameObject {
 
  public:
   GameObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+
+  uint64_t getId() const { return id; }
+  const std::string& getName() const { return name; }
+  void setName(const std::string& n) { name = n; }
+
+  /* For deserialization - set ID directly without generating */
+  void setId(uint64_t newId) { id = newId; }
+
+  /* Called after loading a scene to prevent ID collisions */
+  static void setNextId(uint64_t nextIdValue) { nextId = nextIdValue; }
 
   template <typename T>
   T* addComponent(std::unique_ptr<T> component) {

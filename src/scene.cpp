@@ -107,3 +107,21 @@ void Scene::render() {
     }
   }
 }
+
+uint64_t Scene::findMaxGameObjectId() const {
+  uint64_t maxId = 0;
+
+  for (const auto& root : rootObjects) {
+    maxId = std::max(maxId, root->getId());
+    root->forEachChild([&maxId](GameObject* child) {
+      maxId = std::max(maxId, child->getId());
+    });
+  }
+
+  return maxId;
+}
+
+void Scene::updateNextGameObjectId() {
+  uint64_t maxId = findMaxGameObjectId();
+  GameObject::setNextId(maxId + 1);
+}

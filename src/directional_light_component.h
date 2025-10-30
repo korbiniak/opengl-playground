@@ -30,6 +30,8 @@ class DirectionalLightComponent : public LightComponent {
 
   void setDirection(const glm::vec3& dir) { direction = glm::normalize(dir); }
 
+  std::string getTypeName() const override { return "DirectionalLightComponent"; }
+
   void setUniforms(Shader* shader, int idx) override {
     shader->setUniform(makeUniformName(idx, "direction"), getDirection());
     shader->setUniform(makeUniformName(idx, "ambient"), getAmbient());

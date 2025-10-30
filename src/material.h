@@ -11,6 +11,7 @@
 
 class Material {
  private:
+  std::string name;
   /* TODO: in the future the material could store a list of pairs to know what uniforms to bind */
   std::shared_ptr<Shader> shader;
   std::shared_ptr<Texture> texture;
@@ -27,6 +28,9 @@ class Material {
            glm::vec3 baseColor = glm::vec3(1.0F));
 
   void bind() const;
+
+  const std::string& getName() const { return name; }
+  void setName(const std::string& n) { name = n; }
 
   std::shared_ptr<Shader> getShader() const { return shader; }
   std::shared_ptr<Texture> getTexture() const { return texture; }

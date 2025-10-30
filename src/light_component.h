@@ -34,6 +34,8 @@ class LightComponent : public Component {
 
   void update(float deltaTime) override {}
 
+  std::string getTypeName() const override { return "LightComponent"; }
+
   const glm::vec3& getAmbient() { return ambient; }
   const glm::vec3& getDiffuse() { return diffuse; }
   const glm::vec3& getSpecular() { return specular; }

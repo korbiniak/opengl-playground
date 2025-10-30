@@ -61,6 +61,8 @@ class SpotlightComponent : public LightComponent {
     quadratic = q;
   }
 
+  std::string getTypeName() const override { return "SpotlightComponent"; }
+
   void setUniforms(Shader* shader, int idx) override {
     shader->setUniform(makeUniformName(idx, "position"),
                        gameObject->getWorldPosition());

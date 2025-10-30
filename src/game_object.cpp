@@ -5,9 +5,13 @@
 #include "src/exceptions.h"
 #include "src/utils.h"
 
+uint64_t GameObject::nextId = 1;
+
 GameObject::GameObject(std::shared_ptr<Mesh> mesh,
                        std::shared_ptr<Material> material)
-    : mesh(std::move(mesh)),
+    : id(generateId()),
+      name("GameObject"),
+      mesh(std::move(mesh)),
       material(std::move(material)),
       position(0.0F),
       rotation(glm::quat(1.0F, 0.0F, 0.0F, 0.0F)),
@@ -19,7 +23,6 @@ GameObject::GameObject(std::shared_ptr<Mesh> mesh,
 
 void GameObject::markDirty() {
   dirty = true;
-  // Propagate to all children
   for (auto& child : children) {
     child->markDirty();
   }

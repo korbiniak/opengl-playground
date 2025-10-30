@@ -37,6 +37,8 @@ class PointLightComponent : public LightComponent {
     quadratic = q;
   }
 
+  std::string getTypeName() const override { return "PointLightComponent"; }
+
   void setUniforms(Shader* shader, int idx) override {
     shader->setUniform(makeUniformName(idx, "position"),
                        gameObject->getWorldPosition());

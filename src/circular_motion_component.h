@@ -19,6 +19,8 @@ class CircularMotionComponent : public Component {
 
   void update(float deltaTime) override;
 
+  std::string getTypeName() const override { return "CircularMotionComponent"; }
+
   void setCenter(const glm::vec3& c) { center = c; }
   void setRadius(float r) { radius = r; }
   void setSpeed(float s) { speed = s; }

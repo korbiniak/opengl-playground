@@ -21,6 +21,7 @@ std::shared_ptr<T> ResourceManager::loadResource(
   try {
     std::shared_ptr<T> resource =
         std::make_shared<T>(std::forward<Args>(args)...);
+    resource->setName(name);
     container[name] = resource;
     LOG_INFO(resourceType, " '", name, "' successfully loaded");
     return resource;

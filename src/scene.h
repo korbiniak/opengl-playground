@@ -56,6 +56,12 @@ class Scene {
   }
 
   std::vector<Camera*>& getAllCameras() { return cameras; }
+
+  /* Find maximum GameObject ID in scene (for post-deserialization) */
+  uint64_t findMaxGameObjectId() const;
+
+  /* Update GameObject::nextId to prevent ID collisions after loading */
+  void updateNextGameObjectId();
 };
 
 #endif /* SCENE_H */
