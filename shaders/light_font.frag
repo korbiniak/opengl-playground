@@ -29,15 +29,15 @@ void main()
   vec3 specularColor = vec3(1.0);
   float shininess = 32.0;
 
-  // for (int i = 0; i < numPointLights; ++i) {
-  //   result += CalcPointLight(pointLights[i], normal, FragPos, viewDir, diffuseColor, specularColor, shininess);
-  // }
-  // for (int i = 0; i < numSpotLights; ++i) {
-  //   result += CalcSpotLight(spotLights[i], normal, FragPos, viewDir, diffuseColor, specularColor, shininess);
-  // }
-  // for (int i = 0; i < numDirLights; ++i) {
-  //   result += CalcDirLight(dirLights[i], normal, viewDir, diffuseColor, specularColor, shininess);
-  // }
+  for (int i = 0; i < numPointLights; ++i) {
+    result += CalcPointLight(pointLights[i], normal, FragPos, viewDir, diffuseColor, specularColor, shininess);
+  }
+  for (int i = 0; i < numSpotLights; ++i) {
+    result += CalcSpotLight(spotLights[i], normal, FragPos, viewDir, diffuseColor, specularColor, shininess);
+  }
+  for (int i = 0; i < numDirLights; ++i) {
+    result += CalcDirLight(dirLights[i], normal, viewDir, diffuseColor, specularColor, shininess);
+  }
 
-  FragColor = vec4(baseColor, alpha);
+  FragColor = vec4(result, alpha);
 }

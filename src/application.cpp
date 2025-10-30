@@ -13,6 +13,8 @@
 #include "src/light_component.h"
 #include "src/logger.h"
 #include "src/point_light_component.h"
+#include "src/rainbow_component.h"
+#include "src/rotation_component.h"
 #include "src/spotlight_component.h"
 #include "src/utils.h"
 #include "src/vertex.h"
@@ -70,7 +72,7 @@ void Application::mouseCallback(double xpos, double ypos) {
   lastX = xpos;
   lastY = ypos;
 
-  scene.getActiveCamera().rotate(xoffset, -yoffset);
+  scene.getActiveCamera()->rotate(xoffset, -yoffset);
 }
 
 void Application::framebufferSizeCallback(int xpos, int ypos) {
@@ -96,24 +98,24 @@ void Application::processInput() {
     glfwSetWindowShouldClose(window, true);
   }
 
-  Camera& camera = scene.getActiveCamera();
+  Camera* camera = scene.getActiveCamera();
   if (keys[GLFW_KEY_W]) {
-    camera.moveForward(deltaTime);
+    camera->moveForward(deltaTime);
   }
   if (keys[GLFW_KEY_S]) {
-    camera.moveBackward(deltaTime);
+    camera->moveBackward(deltaTime);
   }
   if (keys[GLFW_KEY_A]) {
-    camera.moveLeft(deltaTime);
+    camera->moveLeft(deltaTime);
   }
   if (keys[GLFW_KEY_D]) {
-    camera.moveRight(deltaTime);
+    camera->moveRight(deltaTime);
   }
   if (keys[GLFW_KEY_SPACE]) {
-    camera.moveUp(deltaTime);
+    camera->moveUp(deltaTime);
   }
   if (keys[GLFW_KEY_LEFT_SHIFT]) {
-    camera.moveDown(deltaTime);
+    camera->moveDown(deltaTime);
   }
   if (keys[GLFW_KEY_TAB] && !wireframe) {
     wireframe = true;
@@ -180,6 +182,9 @@ void Application::loadResources() {
 
   resourceManager.loadShader("3dFontShader", "shaders/light.vert",
                              "shaders/light_font.frag");
+
+  resourceManager.loadShader("3dBrightFontShader", "shaders/light.vert",
+                             "shaders/bright_font.frag");
 
   resourceManager.loadTexture("texture", "assets/container.jpg");
   resourceManager.loadTexture("container2", "assets/container2.png");
@@ -260,15 +265,15 @@ void Application::setupScene() {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
   for (size_t i = 0; i < 10; i++) {
-
     auto textMaterial =
         std::make_shared<Material>(resourceManager.getShader("3dFontShader"),
                                    resourceManager.getFont("arial"), nullptr);
     textMaterial->setBaseColor(glm::vec3(1.0F));
+    textMaterial->setOpaque(false);
 
-    auto text =
-        std::make_unique<WorldText>(resourceManager.getFont("arial"),
-                                    std::move(textMaterial), "Michal to pala");
+    auto text = std::make_unique<WorldText>(resourceManager.getFont("arial"),
+                                            std::move(textMaterial),
+                                            "Michal jest super :)");
     text->setName("text" + std::to_string(i));
     text->setScale(glm::vec3(0.001F));
     text->setPosition(glm::vec3(-0.25F, 0.0F, 0.501F));
@@ -287,13 +292,13 @@ void Application::setupScene() {
   std::unique_ptr<GameObject> dirLight = std::make_unique<GameObject>(
       resourceManager.getMesh("cube"), dirLightMaterial);
   dirLightMaterial->setBaseColor(glm::vec3(1.0F));
-  dirLight->setPosition(glm::vec3(50.0F, 50.0F, 50.0F));
+  dirLight->setPosition(glm::vec3(0.0F, 0.0F, -200.0F));
   dirLight->setScale(glm::vec3(10.0));
-  dirLight->faceDirection(glm::vec3(-1.0F));
+  dirLight->faceDirection(glm::vec3(1.0F));
 
   std::unique_ptr<DirectionalLightComponent> dirLightComponent =
       std::make_unique<DirectionalLightComponent>(
-          glm::vec3(0.1F), glm::vec3(0.3F), glm::vec3(1.0F),
+          glm::vec3(0.1F), glm::vec3(1.0F), glm::vec3(1.0F),
           glm::vec3(-1.0F, -1.0F, -1.0F));
   dirLight->addComponent(std::move(dirLightComponent));
 
@@ -326,17 +331,40 @@ void Application::setupScene() {
   spotLight->addComponent(std::move(spotLightComponent));
   spotLight->faceDirection(glm::vec3(0.0F, 0.0F, -1.0F));
   spotLight->setScale(glm::vec3(0.1F, 0.1F, 0.3F));
-  spotLight->setPosition(glm::vec3(0.2F, -0.2F, -0.5F));
+  spotLight->setPosition(glm::vec3(0.2F, -0.2F, -1.0F));
   camera->addChild(std::move(spotLight));
+
+  auto bannerMaterial = std::make_shared<Material>(
+      resourceManager.getShader("3dBrightFontShader"),
+      resourceManager.getFont("shiny"), nullptr);
+  bannerMaterial->setBaseColor(glm::vec3(1.0F));
+  bannerMaterial->setOpaque(false);
+
+  auto bannerPivot = std::make_unique<GameObject>(nullptr, nullptr);
+  bannerPivot->setPosition(glm::vec3(10.0F, 0.0F, 30.0F));
+  bannerPivot->addComponent(
+      std::make_unique<RotationComponent>(glm::vec3(0.0F, 1.0F, 0.0F), 60.F));
+
+  auto bannerText = std::make_unique<WorldText>(
+      resourceManager.getFont("shiny"), std::move(bannerMaterial),
+      "Michal to pala", true);
+
+  bannerText->setScale(glm::vec3(0.1F));
+  bannerText->faceDirection(glm::vec3(0.0F, 0.0F, 1.0F));
+  bannerText->setPosition(glm::vec3(20.0F, 0.0F, 0.0F));
+  bannerText->addComponent(std::make_unique<RainbowComponent>(100.0F));
+
+  bannerPivot->addChild(std::move(bannerText));
 
   scene.addObject(std::move(dirLight));
   scene.addObject(std::move(pointLight));
+  scene.addObject(std::move(bannerPivot));
   scene.addCamera(std::move(camera));
 }
 
 void Application::setupUI() {
-  ui.addText("title", resourceManager.getFont("arial"), glm::vec2(25.0F, 25.0F),
-             "Fajna giera", 1.0F);
+  // ui.addText("title", resourceManager.getFont("arial"), glm::vec2(25.0F, 25.0F),
+  //            "Fajna giera", 1.0F);
 }
 
 void Application::update() {

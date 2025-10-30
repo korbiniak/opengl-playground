@@ -15,7 +15,8 @@ class Scene {
   std::vector<Camera*> cameras;
   size_t activeCameraIdx;
 
-  std::map<Material*, std::vector<GameObject*>> groupByMaterial();
+  std::map<std::pair<int, Material*>, std::vector<GameObject*>>
+  groupByMaterial();
 
   std::vector<LightComponent*> collectLights();
 
@@ -34,7 +35,7 @@ class Scene {
 
   void setActiveCamera(size_t index) { activeCameraIdx = index; }
 
-  Camera& getActiveCamera() { return *cameras[activeCameraIdx]; }
+  Camera* getActiveCamera() { return cameras[activeCameraIdx]; }
 
   void update(float deltaTime);
 

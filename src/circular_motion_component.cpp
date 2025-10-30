@@ -9,7 +9,8 @@
 CircularMotionComponent::CircularMotionComponent(const glm::vec3& center,
                                                  float radius, float speed,
                                                  const glm::vec3& axis)
-    : center(center),
+    : Component(),
+      center(center),
       radius(radius),
       speed(speed),
       currentAngle(0.0f),
@@ -21,8 +22,6 @@ void CircularMotionComponent::update(float deltaTime) {
   }
 
   constexpr float fullRotation = 2.0f * glm::pi<float>();
-
-  LOG_DEBUG(currentAngle);
 
   currentAngle += speed * deltaTime;
   while (currentAngle > fullRotation) {

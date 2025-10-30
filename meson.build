@@ -45,6 +45,7 @@ src_files = files(
     'src/main2.cpp',
     'src/material.cpp',
     'src/mesh.cpp',
+    'src/rainbow_component.cpp',
     'src/resource_manager.cpp',
     'src/scene.cpp',
     'src/shader.cpp',
@@ -53,6 +54,7 @@ src_files = files(
     'src/texture2d.cpp',
     'src/uitext.cpp',
     'src/utils.cpp',
+    'src/rotation_component.cpp',
 )
 
 inc_dirs = include_directories('src')

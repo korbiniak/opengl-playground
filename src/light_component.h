@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "src/component.h"
+#include "src/game_object.h"
 #include "src/shader.h"
 
 class LightComponent : public Component {
@@ -32,7 +33,7 @@ class LightComponent : public Component {
     }
   }
 
-  void update(float deltaTime) override {}
+  void update(float deltaTime) override { (void)deltaTime; }
 
   std::string getTypeName() const override { return "LightComponent"; }
 

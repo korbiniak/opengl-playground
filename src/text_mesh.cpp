@@ -66,7 +66,7 @@ void TextMesh::buildVertices() {
 
     x += (glyph.advance);
     /* So hacky... */
-    z += 0.001;
+    z += 0.1;
   }
 
   glBindVertexArray(VAO);

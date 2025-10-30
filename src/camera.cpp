@@ -45,7 +45,7 @@ void Camera::updateMatrices() {
   glm::vec3 up = getUp();
   LOG_DEBUG("Updating matrices: ", getPosition(), front, up);
   view = glm::lookAt(getPosition(), getPosition() + front, up);
-  projection = glm::perspective(glm::radians(fov), aspectRatio, 0.1F, 100.0F);
+  projection = glm::perspective(glm::radians(fov), aspectRatio, 0.1F, 500.0F);
 }
 
 void Camera::update(float deltaTime) {

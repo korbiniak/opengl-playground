@@ -146,7 +146,7 @@ void Shader::setUniform(const std::string& name, int val) {
     return;
   }
   if (glGetUniformLocation(id, name.c_str()) == -1) {
-    LOG_WARNING("Can't find uniform " + name);
+    LOG_WARNING(this->name, ": Can't find uniform " + name);
   }
 
   glUniform1i(glGetUniformLocation(id, name.c_str()), val);

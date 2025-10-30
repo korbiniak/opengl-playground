@@ -12,13 +12,20 @@ void Scene::update(float deltaTime) {
   forEachObject([deltaTime](GameObject* obj) { obj->update(deltaTime); });
 }
 
-std::map<Material*, std::vector<GameObject*>> Scene::groupByMaterial() {
-  std::map<Material*, std::vector<GameObject*>> groups;
+int priority(bool opaque) {
+  /* 0 if opaque, 1 otherwise */
+  return !opaque;
+}
+
+/* Probably better if grouped by shader and not material */
+std::map<std::pair<int, Material*>, std::vector<GameObject*>>
+Scene::groupByMaterial() {
+  std::map<std::pair<int, Material*>, std::vector<GameObject*>> groups;
 
   forEachObject([&groups](GameObject* obj) {
     Material* mat = obj->getMaterial().get();
     if (mat) {
-      groups[mat].push_back(obj);
+      groups[std::make_pair(priority(mat->isOpaque()), mat)].push_back(obj);
     }
   });
 
@@ -83,14 +90,18 @@ bool needsCameraPosition(Shader* shader) {
 }
 
 void Scene::render() {
-  Camera& camera = getActiveCamera();
+  Camera* camera = getActiveCamera();
 
-  const glm::mat4& viewMatrix = camera.getViewMatrix();
-  const glm::mat4& projectionMatrix = camera.getProjectionMatrix();
+  const glm::mat4& viewMatrix = camera->getViewMatrix();
+  const glm::mat4& projectionMatrix = camera->getProjectionMatrix();
+  const glm::vec3 cameraPosition = camera->getPosition();
 
-  std::map<Material*, std::vector<GameObject*>> groups = groupByMaterial();
+  std::map<std::pair<int, Material*>, std::vector<GameObject*>> groups =
+      groupByMaterial();
 
-  for (auto [material, group] : groups) {
+  for (auto [key, group] : groups) {
+    auto material = key.second;
+
     Shader* shader = material->getShader().get();
     material->bind();
     shader->setUniform("view", viewMatrix);
@@ -100,7 +111,7 @@ void Scene::render() {
       setLightUniforms(shader);
     }
     if (needsCameraPosition(shader)) {
-      shader->setUniform("viewPos", camera.getWorldPosition());
+      shader->setUniform("viewPos", cameraPosition);
     }
     for (GameObject* obj : group) {
       obj->drawGeometry();

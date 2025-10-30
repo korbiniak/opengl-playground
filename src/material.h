@@ -20,12 +20,13 @@ class Material {
   float shininess;
 
   glm::vec3 baseColor;
+  bool opaque;
 
  public:
   Material(std::shared_ptr<Shader> shader,
            std::shared_ptr<Texture> texture = nullptr,
            std::shared_ptr<Texture> specular = nullptr, float shininess = 32,
-           glm::vec3 baseColor = glm::vec3(1.0F));
+           glm::vec3 baseColor = glm::vec3(1.0F), bool isOpaque = true);
 
   void bind() const;
 
@@ -38,6 +39,10 @@ class Material {
   void setShader(std::shared_ptr<Shader> s) { shader = std::move(s); }
   void setTexture(std::shared_ptr<Texture> tex) { texture = std::move(tex); }
   void setBaseColor(const glm::vec3& color) { baseColor = color; }
+
+  bool isOpaque() const { return opaque; }
+
+  void setOpaque(bool newOpaque) { opaque = newOpaque; }
 
   const glm::vec3& getBaseColor() const { return baseColor; }
 };
