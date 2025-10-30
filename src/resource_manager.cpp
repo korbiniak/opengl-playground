@@ -68,6 +68,44 @@ std::shared_ptr<FontAtlas> ResourceManager::loadFont(
   return loadResource<FontAtlas>("font", fonts, name, path, fontSize);
 }
 
+std::shared_ptr<Material> ResourceManager::createMaterial(
+    const std::string& name, const std::string& shaderName,
+    const std::string& textureName, const std::string& specularName,
+    float shininess, const glm::vec3& baseColor) {
+
+  LOG_INFO("Creating material: ", name);
+
+  if (materials.count(name)) {
+    std::string message = "Material '" + name + "' already exists";
+    LOG_ERROR(message);
+    throw ResourceException("Failed to create material '" + name +
+                            "': " + message);
+  }
+
+  try {
+    std::shared_ptr<Shader> shader = getShader(shaderName);
+    if (!shader) {
+      throw ResourceException("Shader '" + shaderName + "' not found");
+    }
+
+    std::shared_ptr<Texture> texture =
+        textureName.empty() ? nullptr : getTexture(textureName);
+    std::shared_ptr<Texture> specular =
+        specularName.empty() ? nullptr : getTexture(specularName);
+
+    auto material = std::make_shared<Material>(shader, texture, specular,
+                                               shininess, baseColor);
+    material->setName(name);
+    materials[name] = material;
+
+    LOG_INFO("Material '", name, "' successfully created");
+    return material;
+  } catch (const std::exception& e) {
+    LOG_ERROR("Failed to create material '", name, "': ", e.what());
+    throw;
+  }
+}
+
 std::shared_ptr<Shader> ResourceManager::getShader(const std::string& name) {
   return getResource<Shader>("Shader", shaders, name);
 }
@@ -83,4 +121,9 @@ std::shared_ptr<Texture2D> ResourceManager::getTexture(
 
 std::shared_ptr<FontAtlas> ResourceManager::getFont(const std::string& name) {
   return getResource<FontAtlas>("Font", fonts, name);
+}
+
+std::shared_ptr<Material> ResourceManager::getMaterial(
+    const std::string& name) {
+  return getResource<Material>("Material", materials, name);
 }

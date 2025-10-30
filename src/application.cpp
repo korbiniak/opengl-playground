@@ -231,6 +231,9 @@ void Application::loadResources() {
   LOG_INFO(indices[0], indices[1]);
 
   resourceManager.loadMesh("cube", vertices, indices);
+
+  resourceManager.createMaterial("container2", "shader", "container2",
+                                 "container2_specular");
 }
 
 float Application::getAspectRatio() {
@@ -238,10 +241,6 @@ float Application::getAspectRatio() {
 }
 
 void Application::setupScene() {
-  std::shared_ptr<Material> cubeMaterial = std::make_unique<Material>(
-      resourceManager.getShader("shader"),
-      resourceManager.getTexture("container2"),
-      resourceManager.getTexture("container2_specular"));
 
   std::unique_ptr<Camera> camera =
       std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), getAspectRatio());
@@ -254,8 +253,9 @@ void Application::setupScene() {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
   for (size_t i = 0; i < 10; i++) {
-    std::unique_ptr<GameObject> cube = std::make_unique<GameObject>(
-        resourceManager.getMesh("cube"), cubeMaterial);
+    std::unique_ptr<GameObject> cube =
+        std::make_unique<GameObject>(resourceManager.getMesh("cube"),
+                                     resourceManager.getMaterial("container2"));
     cube->setPosition(cubePositions[i]);
     cube->rotate(20.0F * i, glm::vec3(1.0F, 0.3F, 0.5F));
     scene.addObject(std::move(cube));

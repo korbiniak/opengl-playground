@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "src/font_atlas.h"
+#include "src/material.h"
 #include "src/mesh.h"
 #include "src/shader.h"
 #include "src/texture2d.h"
@@ -16,6 +17,7 @@ class ResourceManager {
   std::unordered_map<std::string, std::shared_ptr<Mesh>> meshes;
   std::unordered_map<std::string, std::shared_ptr<Texture2D>> textures;
   std::unordered_map<std::string, std::shared_ptr<FontAtlas>> fonts;
+  std::unordered_map<std::string, std::shared_ptr<Material>> materials;
 
   template <typename T, typename... Args>
   std::shared_ptr<T> loadResource(
@@ -45,6 +47,14 @@ class ResourceManager {
                                       const std::filesystem::path& path,
                                       float fontSize);
 
+  std::shared_ptr<Material> createMaterial(
+      const std::string& name,
+      const std::string& shaderName,
+      const std::string& textureName = "",
+      const std::string& specularName = "",
+      float shininess = 32.0f,
+      const glm::vec3& baseColor = glm::vec3(1.0f));
+
   std::shared_ptr<Shader> getShader(const std::string& name);
 
   std::shared_ptr<Mesh> getMesh(const std::string& name);
@@ -52,6 +62,8 @@ class ResourceManager {
   std::shared_ptr<Texture2D> getTexture(const std::string& name);
 
   std::shared_ptr<FontAtlas> getFont(const std::string& name);
+
+  std::shared_ptr<Material> getMaterial(const std::string& name);
 };
 
 #endif /* RESOURCE_MANAGER_H */
