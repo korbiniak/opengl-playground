@@ -1,15 +1,17 @@
 #include "src/font_atlas.h"
 
 #include <bit>
+#include <cstdint>
 #include <fstream>
 #include <stdexcept>
 
+#include <freetype/freetype.h>
 #include <stb_image_write.h>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/unordered_map.hpp>
 
-#include "freetype/freetype.h"
 #include "src/logger.h"
+#include "src/utils.h"
 
 void FontAtlas::setupTexture(unsigned char* data) {
   glBindTexture(GL_TEXTURE_2D, id);
@@ -83,7 +85,19 @@ FontAtlas::FontAtlas(const std::filesystem::path& fontPath, float fontSize)
   int rowHeight = 0;
   lineHeight = face->size->metrics.height / 64.0f;
 
+  std::vector<unsigned int> characters;
   for (unsigned char c = 32; c < 127; ++c) {
+    characters.push_back(c);
+  }
+
+  std::string diacritics = "ĄĆĘŁÓŃŚŹŻąćęłóńśźż";
+  const char* ptr = diacritics.c_str();
+  while (*ptr) {
+    unsigned int cp = decodeUTF8(ptr);
+    characters.push_back(cp);
+  }
+
+  for (unsigned int c : characters) {
     if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
       LOG_WARNING("Failed to load glyph: ", c);
       continue;
@@ -151,7 +165,7 @@ void FontAtlas::saveAtlas(const std::filesystem::path& outputPath,
   archive(fontSize, lineHeight, glyphs);
 }
 
-FontAtlas::GlyphInfo& FontAtlas::getGlyph(char c) {
+FontAtlas::GlyphInfo& FontAtlas::getGlyph(unsigned int c) {
   auto it = glyphs.find(c);
   if (it != glyphs.end()) {
     return it->second;

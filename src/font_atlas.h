@@ -25,7 +25,7 @@ class FontAtlas : public Texture {
   };
 
  private:
-  std::unordered_map<char, GlyphInfo> glyphs;
+  std::unordered_map<unsigned int, GlyphInfo> glyphs;
   float fontSize;
   float lineHeight;
 
@@ -44,7 +44,7 @@ class FontAtlas : public Texture {
   float getFontSize() const { return fontSize; }
   float getLineHeight() const { return lineHeight; }
 
-  GlyphInfo& getGlyph(char c);
+  GlyphInfo& getGlyph(unsigned int c);
 };
 
 #endif /* FONT_ATLAS_H */

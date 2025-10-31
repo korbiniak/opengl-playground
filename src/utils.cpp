@@ -55,3 +55,29 @@ glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
   return glm::quat(s * 0.5f, rotationAxis.x * invs, rotationAxis.y * invs,
                    rotationAxis.z * invs);
 }
+
+unsigned int decodeUTF8(const char*& ptr) {
+  unsigned char c = *ptr++;
+  unsigned int result = 0;
+
+  if (!(c & 0x80)) {
+    result = c;
+  } else if ((c & 0xE0) == 0xC0) {
+    result = (c & 0x1F) << 6;
+    result |= (*ptr++ & 0x3F);
+  } else if ((c & 0xF0) == 0xE0) {
+    result = (c & 0x0F) << 12;
+    result |= (*ptr++ & 0x3F) << 6;
+    result |= (*ptr++ & 0x3F);
+  } else if ((c & 0xF8) == 0xF0) {
+    result = (c & 0x07) << 18;
+    result |= (*ptr++ & 0x3F) << 12;
+    result |= (*ptr++ & 0x3F) << 6;
+    result |= (*ptr++ & 0x3F);
+  } else {
+    LOG_WARNING("Weird UTF character, first byte: ", (unsigned int)c);
+    result = '?';
+  }
+
+  return result;
+}

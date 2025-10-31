@@ -193,6 +193,7 @@ void Application::loadResources() {
 
   resourceManager.loadFont("arial", "fonts/arial.ttf", 64);
   resourceManager.loadFont("shiny", "fonts/shiny.ttf", 64);
+  resourceManager.loadFont("superpower", "fonts/superpower.ttf", 64);
 
   std::vector<Vertex> vertices = {
       {{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, -1.0F}, {0.0F, 0.0F}},
@@ -273,7 +274,7 @@ void Application::setupScene() {
 
     auto text = std::make_unique<WorldText>(resourceManager.getFont("arial"),
                                             std::move(textMaterial),
-                                            "Michal jest super :)");
+                                            "Michał jest super :)");
     text->setName("text" + std::to_string(i));
     text->setScale(glm::vec3(0.001F));
     text->setPosition(glm::vec3(-0.25F, 0.0F, 0.501F));
@@ -336,7 +337,7 @@ void Application::setupScene() {
 
   auto bannerMaterial = std::make_shared<Material>(
       resourceManager.getShader("3dBrightFontShader"),
-      resourceManager.getFont("shiny"), nullptr);
+      resourceManager.getFont("superpower"), nullptr);
   bannerMaterial->setBaseColor(glm::vec3(1.0F));
   bannerMaterial->setOpaque(false);
 
@@ -346,8 +347,8 @@ void Application::setupScene() {
       std::make_unique<RotationComponent>(glm::vec3(0.0F, 1.0F, 0.0F), 60.F));
 
   auto bannerText = std::make_unique<WorldText>(
-      resourceManager.getFont("shiny"), std::move(bannerMaterial),
-      "Michal to pala", true);
+      resourceManager.getFont("superpower"), std::move(bannerMaterial),
+      "Michał to pała", true);
 
   bannerText->setScale(glm::vec3(0.1F));
   bannerText->faceDirection(glm::vec3(0.0F, 0.0F, 1.0F));

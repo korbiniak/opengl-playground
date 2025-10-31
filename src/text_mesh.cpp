@@ -40,7 +40,10 @@ void TextMesh::buildVertices() {
   float atlasWidth = static_cast<float>(font->getWidth());
   float atlasHeight = static_cast<float>(font->getHeight());
 
-  for (char c : text) {
+  const char* ptr = text.c_str();
+  while (*ptr) {
+    unsigned int c = decodeUTF8(ptr);
+
     FontAtlas::GlyphInfo& glyph = font->getGlyph(c);
     float xpos = x + glyph.bearingX;
     float ypos = y - (glyph.height - glyph.bearingY);

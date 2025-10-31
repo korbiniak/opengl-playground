@@ -10,4 +10,6 @@ extern void checkGLError(const std::string& location);
 
 extern glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
 
+extern unsigned int decodeUTF8(const char*& ptr);
+
 #endif /* UTILS_H */
